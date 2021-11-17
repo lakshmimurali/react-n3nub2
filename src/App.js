@@ -367,7 +367,7 @@ export default class AddToDo extends React.Component {
     });
   }
   componentDidMount() {
-    //this.setFocusToTextBox();
+    this.setFocusToTextBox();
   }
   render() {
     return (
