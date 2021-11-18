@@ -19,6 +19,7 @@ export default class AddToDo extends React.Component {
     };
     this.textBoxField = React.createRef();
     this.buttonRef = React.createRef();
+    this.hideErrorMessage = this.hideErrorMessage.bind(this);
   }
 
   setToDo = (eve) => {
@@ -51,16 +52,17 @@ export default class AddToDo extends React.Component {
     return isToDOExist;
   }
   storeToDoInList(e, toDoContent) {
+    let trimmedContent = toDoContent.trim();
     //console.log(e.target.tagName);
     if (
       e.key === 'Enter' ||
       (e.type === 'click' && e.target.tagName === 'BUTTON')
     ) {
-      if (this.checkToDoExist(toDoContent)) {
+      if (this.checkToDoExist(trimmedContent)) {
         this.setState(function (state) {
           return {
             toDoDetails: Object.assign({}, state.toDoDetails, {
-              errorMessage: 'To Do Already Added',
+              errorMessage: 'Already Added',
             }),
           };
         });
@@ -71,7 +73,7 @@ export default class AddToDo extends React.Component {
         this.setState(function (state) {
           return {
             toDoDetails: Object.assign({}, state.toDoDetails, {
-              todoList: this.state.toDoDetails.todoList.concat(toDoContent),
+              todoList: this.state.toDoDetails.todoList.concat(trimmedContent),
               errorMessage: null,
             }),
           };
@@ -82,7 +84,7 @@ export default class AddToDo extends React.Component {
         let updatedTempList = tempToDoList.splice(
           this.state.toDoDetails.editIndex,
           1,
-          toDoContent
+          trimmedContent
         );
         this.setState(function (state) {
           return {
@@ -266,6 +268,7 @@ export default class AddToDo extends React.Component {
             </span>
             <span
               style={{ cursor: 'pointer' }}
+              title="Delete-ToDo"
               key={index + '-x'}
               onClick={() => this.removeToDo(index)}
             >
@@ -354,7 +357,7 @@ export default class AddToDo extends React.Component {
               rows={5}
               cols={60}
             />
-          ) : paperWorkExist ? (
+          ) : paperWorkExist && paperWorkExist.value !== '' ? (
             <p key={index + 'pwp'} style={{ whiteSpace: 'pre' }}>
               {' '}
               <span key={index + 'pwpdetails'} style={{ marginLeft: -10 }}>
@@ -370,6 +373,15 @@ export default class AddToDo extends React.Component {
   }
   componentDidMount() {
     this.setFocusToTextBox();
+  }
+  hideErrorMessage(event) {
+    this.setState(function (state) {
+      return {
+        toDoDetails: Object.assign({}, state.toDoDetails, {
+          errorMessage: null,
+        }),
+      };
+    });
   }
   render() {
     return (
@@ -397,13 +409,27 @@ export default class AddToDo extends React.Component {
           onKeyDown={(event) =>
             this.storeToDoInList(event, this.state.toDoDetails.newToDo)
           }
+          style={{ cursor: 'pointer' }}
         >
           {this.state.toDoDetails.labelText}
         </button>
         <br />
-        <span style={{ color: 'red', visibiity: 'visible' }}>
-          {this.state.toDoDetails.errorMessage}
-        </span>
+        {this.state.toDoDetails.errorMessage !== null ? (
+          <span
+            style={{
+              color: 'red',
+              visibiity: 'visible',
+              position: 'absolute',
+              top: '63px',
+            }}
+          >
+            <br />
+            {this.state.toDoDetails.errorMessage} &nbsp;{' '}
+            <span style={{ cursor: 'pointer' }} onClick={this.hideErrorMessage}>
+              X
+            </span>
+          </span>
+        ) : null}
         {this.renderToDoItems()}
       </>
     );
