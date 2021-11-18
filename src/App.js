@@ -6,7 +6,7 @@ export default class AddToDo extends React.Component {
     super(props);
     this.state = {
       toDoDetails: {
-        newToDo: '',todoListtodoList
+        newToDo: '',
         todoList: [],
         isEdit: false,
         editIndex: 0,
@@ -373,12 +373,11 @@ export default class AddToDo extends React.Component {
               cols={60}
             />
           ) : paperWorkExist && paperWorkExist.value !== '' ? (
-            <p key={index + 'pwp'} style={{ whietaExistteSpace: 'pre' }}>
+            <p key={index + 'pwp'} style={{ whiteSpace: 'pre' }}>
               {' '}
               <span key={index + 'pwpdetails'} style={{ marginLeft: -10 }}>
-                Details: <br />{' '}
+                Details: <br /> {paperWorkExist.value}
               </span>
-              {paperWorkExist.value}
             </p>
           ) : null}
           <hr key={index + 'hr'} />
