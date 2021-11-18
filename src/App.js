@@ -158,17 +158,21 @@ export default class AddToDo extends React.Component {
       };
     });
   }
-  updatePaperWorkForToDo(event = null, id) {
-    let value = event && event.target.value;
+  updatePaperWorkForToDo(value = '', id, textareastate) {
     let paperWorkList = this.state.toDoDetails.paperwork.slice();
     let itemexist;
     itemexist = paperWorkList.find(({ itemId }) => itemId === id);
 
     //console.log('item', itemexist);
     if (!itemexist) {
-      paperWorkList.push({ itemId: id, value: value });
+      paperWorkList.push({
+        itemId: id,
+        value: value,
+        textareastate: textareastate,
+      });
     } else {
       itemexist.value = value;
+      itemexist.textareastate = textareastate;
       paperWorkList.forEach((item_paperwork, index) => {
         if (item_paperwork.itemId === id) {
           paperWorkList[index] = itemexist;
@@ -176,7 +180,7 @@ export default class AddToDo extends React.Component {
       });
     }
 
-    //console.log(paperWorkList);
+    console.log(paperWorkList);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -185,17 +189,20 @@ export default class AddToDo extends React.Component {
       };
     });
   }
-  renderPaperWork(event, id) {
-    let paperWorkList = this.state.toDoDetails.paperWorkEnabled.slice();
-    paperWorkList.push('p-' + id);
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          paperWorkEnabled: paperWorkList,
-        }),
-      };
-    });
-    this.updatePaperWorkForToDo(null, id + '-textarea');
+  renderPaperWork(obj, id, textareastate) {
+    console.log(obj, id);
+    let paperWorkValue;
+    if (typeof obj === 'undefined' || obj.value === 'undefined') {
+      console.log('inside');
+      paperWorkValue = '';
+    } else {
+      paperWorkValue = obj.value;
+    }
+    this.updatePaperWorkForToDo(
+      paperWorkValue,
+      id + '-textarea',
+      textareastate
+    );
   }
   updateEstimatedTimeofCompletion(event, id) {
     // console.log(event.target.value);
@@ -265,7 +272,9 @@ export default class AddToDo extends React.Component {
           <p key={index}>
             <span
               style={{ cursor: 'pointer', color: 'blue' }}
-              onClick={() => this.renderPaperWork(null, index)}
+              onClick={() =>
+                this.renderPaperWork(paperWorkExist, index, 'close')
+              }
             >
               {' '}
               {value}{' '}
@@ -296,13 +305,7 @@ export default class AddToDo extends React.Component {
                     this.updatePriorityOfToDo(event, index + '-select')
                   }
                 >
-                  <option
-                    key={index + 'none'}
-                    value="none"
-                    selected
-                    disabled
-                    hidden
-                  >
+                  <option key={index + 'none'} value="none">
                     Select an Option
                   </option>
 
@@ -346,14 +349,20 @@ export default class AddToDo extends React.Component {
             )}{' '}
           </p>
           {typeof paperWorkExist !== 'undefined' &&
-          typeof paperWorkExist.value === 'object' ? (
+          paperWorkExist.textareastate === 'close' ? (
             <textarea
               key={index + '-textarea'}
               placeholder="Plan your paper work here. To Save click outside the box"
-              value={this.state.toDoDetails.paperWorkContent}
-              onChange={this.handlePaperWorkChange}
+              onChange={(evt) =>
+                this.renderPaperWork(evt.target, index, 'close')
+              }
+              value={paperWorkExist.value}
               onBlur={(event) =>
-                this.updatePaperWorkForToDo(event, index + '-textarea')
+                this.updatePaperWorkForToDo(
+                  event.target.value,
+                  index + '-textarea',
+                  'open'
+                )
               }
               rows={5}
               cols={60}
@@ -367,7 +376,7 @@ export default class AddToDo extends React.Component {
     });
   }
   componentDidMount() {
-    this.setFocusToTextBox();
+    //this.setFocusToTextBox();
   }
   render() {
     return (
