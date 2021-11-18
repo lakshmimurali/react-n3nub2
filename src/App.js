@@ -14,14 +14,11 @@ export default class AddToDo extends React.Component {
         errorMessage: null,
         selectedPriority: [],
         paperwork: [],
-        paperWorkEnabled: [],
-        paperWorkContent: '',
         todoETA: [],
       },
     };
     this.textBoxField = React.createRef();
     this.buttonRef = React.createRef();
-    this.handlePaperWorkChange = this.handlePaperWorkChange.bind(this);
   }
 
   setToDo = (eve) => {
@@ -130,8 +127,6 @@ export default class AddToDo extends React.Component {
     });
   }
   updatePriorityOfToDo(evnt, id) {
-    //console.log(evnt);
-    //console.log(id);
     let value = evnt.target.value;
     let priorityList = this.state.toDoDetails.selectedPriority.slice();
     let itemexist;
@@ -148,8 +143,6 @@ export default class AddToDo extends React.Component {
         }
       });
     }
-
-    //console.log(priorityList);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -162,8 +155,6 @@ export default class AddToDo extends React.Component {
     let paperWorkList = this.state.toDoDetails.paperwork.slice();
     let itemexist;
     itemexist = paperWorkList.find(({ itemId }) => itemId === id);
-
-    //console.log('item', itemexist);
     if (!itemexist) {
       paperWorkList.push({
         itemId: id,
@@ -179,7 +170,6 @@ export default class AddToDo extends React.Component {
         }
       });
     }
-
     console.log(paperWorkList);
     this.setState(function (state) {
       return {
@@ -189,7 +179,7 @@ export default class AddToDo extends React.Component {
       };
     });
   }
-  renderPaperWork(obj, id, textareastate) {
+  renderTextAreaToAddPaperWork(obj, id, textareastate) {
     console.log(obj, id);
     let paperWorkValue;
     if (typeof obj === 'undefined' || obj.value === 'undefined') {
@@ -233,18 +223,6 @@ export default class AddToDo extends React.Component {
     });
   }
 
-  handlePaperWorkChange(event) {
-    let paperWork = event.target.value;
-    // console.log(paperWork);
-    this.setState(function (state) {
-      //console.log('inside state', state);
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          paperWorkContent: paperWork,
-        }),
-      };
-    });
-  }
   renderToDoItems() {
     if (this.state.toDoDetails.todoList.length === 0) {
       return false;
@@ -273,7 +251,11 @@ export default class AddToDo extends React.Component {
             <span
               style={{ cursor: 'pointer', color: 'blue' }}
               onClick={() =>
-                this.renderPaperWork(paperWorkExist, index, 'close')
+                this.renderTextAreaToAddPaperWork(
+                  paperWorkExist,
+                  index,
+                  'close'
+                )
               }
             >
               {' '}
@@ -354,7 +336,7 @@ export default class AddToDo extends React.Component {
               key={index + '-textarea'}
               placeholder="Plan your paper work here. To Save click outside the box"
               onChange={(evt) =>
-                this.renderPaperWork(evt.target, index, 'close')
+                this.renderTextAreaToAddPaperWork(evt.target, index, 'close')
               }
               value={paperWorkExist.value}
               onBlur={(event) =>
