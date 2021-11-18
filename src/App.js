@@ -222,7 +222,10 @@ export default class AddToDo extends React.Component {
       };
     });
   }
-
+  setFocusToTextArea(event) {
+    //console.log(event);
+    event.target.selectionEnd = (0, event.target.value.length);
+  }
   renderToDoItems() {
     if (this.state.toDoDetails.todoList.length === 0) {
       return false;
@@ -346,6 +349,7 @@ export default class AddToDo extends React.Component {
                   'open'
                 )
               }
+              onFocus={(evnt) => this.setFocusToTextArea(evnt)}
               autoFocus
               rows={5}
               cols={60}
@@ -353,7 +357,9 @@ export default class AddToDo extends React.Component {
           ) : paperWorkExist ? (
             <p key={index + 'pwp'} style={{ whiteSpace: 'pre' }}>
               {' '}
-              Details: <br />
+              <span key={index + 'pwpdetails'} style={{ marginLeft: -10 }}>
+                Details: <br />{' '}
+              </span>
               {paperWorkExist.value}
             </p>
           ) : null}
@@ -363,7 +369,7 @@ export default class AddToDo extends React.Component {
     });
   }
   componentDidMount() {
-    //this.setFocusToTextBox();
+    this.setFocusToTextBox();
   }
   render() {
     return (
