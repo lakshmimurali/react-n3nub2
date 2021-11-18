@@ -246,7 +246,7 @@ export default class AddToDo extends React.Component {
         date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
 
       return (
-        <>
+        <div key={index + 'containerdiv'}>
           <p key={index}>
             <span
               style={{ cursor: 'pointer', color: 'blue' }}
@@ -346,14 +346,19 @@ export default class AddToDo extends React.Component {
                   'open'
                 )
               }
+              autoFocus
               rows={5}
               cols={60}
             />
           ) : paperWorkExist ? (
-            paperWorkExist.value
+            <p key={index + 'pwp'} style={{ whiteSpace: 'pre' }}>
+              {' '}
+              Details: <br />
+              {paperWorkExist.value}
+            </p>
           ) : null}
-          <hr />
-        </>
+          <hr key={index + 'hr'} />
+        </div>
       );
     });
   }
