@@ -6,7 +6,7 @@ export default class AddToDo extends React.Component {
     super(props);
     this.state = {
       toDoDetails: {
-        newToDo: '',
+        newToDo: '',todoListtodoList
         todoList: [],
         isEdit: false,
         editIndex: 0,
@@ -73,7 +73,7 @@ export default class AddToDo extends React.Component {
         this.setState(function (state) {
           return {
             toDoDetails: Object.assign({}, state.toDoDetails, {
-              todoList: this.state.toDoDetails.todoList.concat(trimmedContent),
+              todoList: this.state.toDoDetails.todoList.concat(toDoContent),
               errorMessage: null,
             }),
           };
@@ -84,7 +84,7 @@ export default class AddToDo extends React.Component {
         let updatedTempList = tempToDoList.splice(
           this.state.toDoDetails.editIndex,
           1,
-          trimmedContent
+          toDoContent
         );
         this.setState(function (state) {
           return {
@@ -196,7 +196,7 @@ export default class AddToDo extends React.Component {
       textareastate
     );
   }
-  updateEstimatedTimeofCompletion(event, id) {
+  updateEstimatedTimeofCompletion(event, id, datestate) {
     // console.log(event.target.value);
     let value = event.target.value;
     let etaList = this.state.toDoDetails.todoETA.slice();
@@ -205,9 +205,10 @@ export default class AddToDo extends React.Component {
 
     // console.log('item', itemexist);
     if (!itemexist) {
-      etaList.push({ itemId: id, value: value });
+      etaList.push({ itemId: id, value: value, datestate: datestate });
     } else {
       itemexist.value = value;
+      itemexist.datestate = datestate;
       etaList.forEach((item_priority, index) => {
         if (item_priority.itemId === id) {
           etaList[index] = itemexist;
@@ -241,7 +242,10 @@ export default class AddToDo extends React.Component {
       let etaExist = this.state.toDoDetails.todoETA.find(
         ({ itemId }) => itemId === index + '-date'
       );
-
+      if (typeof etaExist === 'undefined') {
+        etaExist = {};
+        etaExist.datestate = 'open';
+      }
       let paperWorkExist = this.state.toDoDetails.paperwork.find(
         ({ itemId }) => itemId === index + '-textarea'
       );
@@ -322,14 +326,25 @@ export default class AddToDo extends React.Component {
               </span>
             )}
             | &nbsp;
-            {!etaExist ? (
+            {etaExist.datestate === 'open' ? (
               <input
                 style={{ cursor: 'pointer' }}
                 type="date"
-                value={today}
+                value={etaExist.value || today}
                 key={index + '-date'}
-                onChange={(event) =>
-                  this.updateEstimatedTimeofCompletion(event, index + '-date')
+                onChange={(evnt) => {
+                  this.updateEstimatedTimeofCompletion(
+                    evnt,
+                    index + '-date',
+                    'open'
+                  );
+                }}
+                onBlur={(event) =>
+                  this.updateEstimatedTimeofCompletion(
+                    event,
+                    index + '-date',
+                    'close'
+                  )
                 }
               />
             ) : (
@@ -358,7 +373,7 @@ export default class AddToDo extends React.Component {
               cols={60}
             />
           ) : paperWorkExist && paperWorkExist.value !== '' ? (
-            <p key={index + 'pwp'} style={{ whiteSpace: 'pre' }}>
+            <p key={index + 'pwp'} style={{ whietaExistteSpace: 'pre' }}>
               {' '}
               <span key={index + 'pwpdetails'} style={{ marginLeft: -10 }}>
                 Details: <br />{' '}
