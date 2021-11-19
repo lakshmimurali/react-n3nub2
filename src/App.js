@@ -327,28 +327,49 @@ export default class AddToDo extends React.Component {
             )}
             | &nbsp;
             {etaExist.datestate === 'open' ? (
-              <input
-                style={{ cursor: 'pointer' }}
-                type="date"
-                value={etaExist.value || today}
-                key={index + '-date'}
-                onChange={(evnt) => {
-                  this.updateEstimatedTimeofCompletion(
-                    evnt,
-                    index + '-date',
-                    'open'
-                  );
-                }}
-                onBlur={(event) =>
-                  this.updateEstimatedTimeofCompletion(
-                    event,
-                    index + '-date',
-                    'close'
-                  )
-                }
-              />
+              <span key={index + '-date-apply-eta'}>
+                {' '}
+                Apply ETA: &nbsp;{' '}
+                <input
+                  style={{ cursor: 'pointer' }}
+                  type="date"
+                  value={etaExist.value || today}
+                  key={index + '-date'}
+                  onChange={(evnt) => {
+                    this.updateEstimatedTimeofCompletion(
+                      evnt,
+                      index + '-date',
+                      'open'
+                    );
+                  }}
+                  onBlur={(event) =>
+                    this.updateEstimatedTimeofCompletion(
+                      event,
+                      index + '-date',
+                      'close'
+                    )
+                  }
+                />{' '}
+              </span>
             ) : (
-              <span key={index + 'etainfo'}> ETA: {etaExist.value} </span>
+              <span key={index + 'etainfo'}>
+                {' '}
+                ETA: {etaExist.value}{' '}
+                <span
+                  key={index + 'editetainfo'}
+                  style={{ cursor: 'pointer', color: '#1f29a4' }}
+                  onClick={(evnt) => {
+                    this.updateEstimatedTimeofCompletion(
+                      evnt,
+                      index + '-date',
+                      'open'
+                    );
+                  }}
+                >
+                  {' '}
+                  &nbsp; | Edit ETA
+                </span>{' '}
+              </span>
             )}{' '}
           </p>
           {typeof paperWorkExist !== 'undefined' &&
