@@ -386,6 +386,7 @@ export default class AddToDo extends React.Component {
     });
   }
   componentDidMount() {
+    console.log('Patta Kutti');
     this.setFocusToTextBox();
   }
   hideErrorMessage(event) {
