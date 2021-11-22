@@ -130,6 +130,9 @@ export default class AddToDo extends React.Component {
   }
   updatePriorityOfToDo(evnt, id, selectState) {
     let value = evnt.target.value;
+    if (value === 'none') {
+      return false;
+    }
     let priorityList = this.state.toDoDetails.selectedPriority.slice();
     let itemexist;
     itemexist = priorityList.find(({ itemId }) => itemId === id);
