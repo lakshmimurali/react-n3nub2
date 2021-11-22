@@ -235,10 +235,13 @@ export default class AddToDo extends React.Component {
     }
     return this.state.toDoDetails.todoList.map((value, index) => {
       // console.log('regarding paperwork', this.state.toDoDetails.paperwork);
-      let elementExist = this.state.toDoDetails.selectedPriority.find(
+      let selectedPriority = this.state.toDoDetails.selectedPriority.find(
         ({ itemId }) => itemId === index + '-select'
       );
-
+      if (typeof selectedPriority === 'undefined') {
+        selectedPriority = {};
+        selectedPriority.selectState = 'open';
+      }
       let etaExist = this.state.toDoDetails.todoETA.find(
         ({ itemId }) => itemId === index + '-date'
       );
@@ -286,7 +289,7 @@ export default class AddToDo extends React.Component {
               {' '}
               Edit |
             </span>
-            {!elementExist ? (
+            {selectedPriority.selectState === 'open' ? (
               <span>
                 {' '}
                 <span key={index + 'sp'}> Set Priority: </span>
@@ -294,7 +297,10 @@ export default class AddToDo extends React.Component {
                   key={index + '-select'}
                   style={{ cursor: 'pointer' }}
                   onChange={(event) =>
-                    this.updatePriorityOfToDo(event, index + '-select')
+                    this.updatePriorityOfToDo(event, index + '-select', 'open')
+                  }
+                  onBlur={(evt) =>
+                    this.updatePriorityOfToDo(evt, index + '-select', 'close')
                   }
                 >
                   <option key={index + 'none'} value="none">
@@ -408,7 +414,7 @@ export default class AddToDo extends React.Component {
   }
   componentDidMount() {
     console.log('Patta Kutti');
-    this.setFocusToTextBox();
+    //this.setFocusToTextBox();
   }
   hideErrorMessage(event) {
     this.setState(function (state) {
