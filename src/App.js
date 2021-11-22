@@ -128,7 +128,7 @@ export default class AddToDo extends React.Component {
       };
     });
   }
-  updatePriorityOfToDo(evnt, id) {
+  updatePriorityOfToDo(evnt, id, selectState) {
     let value = evnt.target.value;
     let priorityList = this.state.toDoDetails.selectedPriority.slice();
     let itemexist;
@@ -136,9 +136,10 @@ export default class AddToDo extends React.Component {
 
     //console.log('item', itemexist);
     if (!itemexist) {
-      priorityList.push({ itemId: id, value: value });
+      priorityList.push({ itemId: id, value: value, selectState: selectState });
     } else {
       itemexist.value = value;
+      itemexist.selectState = selectState;
       priorityList.forEach((item_priority, index) => {
         if (item_priority.itemId === id) {
           priorityList[index] = itemexist;
@@ -279,7 +280,7 @@ export default class AddToDo extends React.Component {
               key={index + '-x'}
               onClick={() => this.removeToDo(index)}
             >
-              &nbsp; | &nbsp; X |
+              &nbsp; | X |
             </span>
             <span
               style={{ cursor: 'pointer', color: 'green' }}
@@ -287,8 +288,9 @@ export default class AddToDo extends React.Component {
               onClick={() => this.editToDo(index, value)}
             >
               {' '}
-              Edit |
-            </span>
+              Edit
+            </span>{' '}
+            |
             {selectedPriority.selectState === 'open' ? (
               <span>
                 {' '}
@@ -328,7 +330,17 @@ export default class AddToDo extends React.Component {
             ) : (
               <span key={index + '-priority'}>
                 {' '}
-                Selected Priorty: {elementExist.value}{' '}
+                Selected Priorty: {selectedPriority.value}{' '}
+                <span
+                  key={index + 'editpriority'}
+                  style={{ cursor: 'pointer', color: '#1f29a4' }}
+                  onClick={(evnt) => {
+                    this.updatePriorityOfToDo(evnt, index + '-select', 'open');
+                  }}
+                >
+                  {' '}
+                  - Edit Priority &nbsp;
+                </span>
               </span>
             )}
             | &nbsp;
@@ -373,7 +385,7 @@ export default class AddToDo extends React.Component {
                   }}
                 >
                   {' '}
-                  &nbsp; | Edit ETA
+                  - Edit ETA
                 </span>{' '}
               </span>
             )}{' '}
