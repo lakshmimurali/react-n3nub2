@@ -184,7 +184,7 @@ export default class AddToDo extends React.Component {
         }
       });
     }
-    console.log(paperWorkList);
+    // console.log(paperWorkList);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -194,10 +194,10 @@ export default class AddToDo extends React.Component {
     });
   }
   renderTextAreaToAddPaperWork(obj, id, textareastate) {
-    console.log(obj, id);
+    //console.log(obj, id);
     let paperWorkValue;
     if (typeof obj === 'undefined' || obj.value === 'undefined') {
-      console.log('inside');
+      //console.log('inside');
       paperWorkValue = '';
     } else {
       paperWorkValue = obj.value;
@@ -259,7 +259,7 @@ export default class AddToDo extends React.Component {
       if (selectedPriority.inDB) {
         selectedPriority.textLabel = 'Update Priority';
       }
-      console.log(selectedPriority);
+      //console.log(selectedPriority);
       let etaExist = this.state.toDoDetails.todoETA.find(
         ({ itemId }) => itemId === index + '-date'
       );
@@ -267,6 +267,7 @@ export default class AddToDo extends React.Component {
         etaExist = {};
         etaExist.datestate = 'open';
       }
+      //console.log(etaExist);
       let paperWorkExist = this.state.toDoDetails.paperwork.find(
         ({ itemId }) => itemId === index + '-textarea'
       );
@@ -404,7 +405,7 @@ export default class AddToDo extends React.Component {
                   style={{ cursor: 'pointer', color: '#1f29a4' }}
                   onClick={(evnt) => {
                     this.updateEstimatedTimeofCompletion(
-                      evnt,
+                      { target: { value: etaExist.value } },
                       index + '-date',
                       'open'
                     );
