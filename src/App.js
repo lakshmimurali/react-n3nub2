@@ -139,8 +139,16 @@ export default class AddToDo extends React.Component {
 
     //console.log('item', itemexist);
     if (!itemexist) {
-      priorityList.push({ itemId: id, value: value, selectState: selectState });
+      priorityList.push({
+        itemId: id,
+        value: value,
+        selectState: selectState,
+        inDB: false,
+      });
     } else {
+      if (selectState === 'close') {
+        itemexist.inDB = true;
+      }
       itemexist.value = value;
       itemexist.selectState = selectState;
       priorityList.forEach((item_priority, index) => {
@@ -245,7 +253,13 @@ export default class AddToDo extends React.Component {
       if (typeof selectedPriority === 'undefined') {
         selectedPriority = {};
         selectedPriority.selectState = 'open';
+        selectedPriority.inDB = false;
       }
+      selectedPriority.textLabel = 'Select Priority';
+      if (selectedPriority.inDB) {
+        selectedPriority.textLabel = 'Update Priority';
+      }
+      console.log(selectedPriority);
       let etaExist = this.state.toDoDetails.todoETA.find(
         ({ itemId }) => itemId === index + '-date'
       );
@@ -256,7 +270,7 @@ export default class AddToDo extends React.Component {
       let paperWorkExist = this.state.toDoDetails.paperwork.find(
         ({ itemId }) => itemId === index + '-textarea'
       );
-      console.log('paperWorkExist', paperWorkExist);
+      //console.log('paperWorkExist', paperWorkExist);
       let date = new Date();
       let today =
         date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
@@ -297,10 +311,15 @@ export default class AddToDo extends React.Component {
             {selectedPriority.selectState === 'open' ? (
               <span>
                 {' '}
-                <span key={index + 'sp'}> Set Priority: </span>
+                <span key={index + 'sp'}> {selectedPriority.textLabel}: </span>
                 <select
                   key={index + '-select'}
                   style={{ cursor: 'pointer' }}
+                  value={
+                    selectedPriority.value === 'undefined'
+                      ? 'Select an Option'
+                      : selectedPriority.value
+                  }
                   onChange={(event) =>
                     this.updatePriorityOfToDo(event, index + '-select', 'open')
                   }
@@ -338,7 +357,11 @@ export default class AddToDo extends React.Component {
                   key={index + 'editpriority'}
                   style={{ cursor: 'pointer', color: '#1f29a4' }}
                   onClick={(evnt) => {
-                    this.updatePriorityOfToDo(evnt, index + '-select', 'open');
+                    this.updatePriorityOfToDo(
+                      { target: { value: selectedPriority.value } },
+                      index + '-select',
+                      'open'
+                    );
                   }}
                 >
                   {' '}
