@@ -53,7 +53,12 @@ export default class AddToDo extends React.Component {
   }
   storeToDoInList(e, toDoContent) {
     let trimmedContent = toDoContent.trim();
+    console.log(e);
     //console.log(e.target.tagName);
+    if (e.key === 'Escape' && e.target.tagName === 'INPUT') {
+      this.clearToDo();
+      return false;
+    }
     if (
       e.key === 'Enter' ||
       (e.type === 'click' && e.target.tagName === 'BUTTON')
