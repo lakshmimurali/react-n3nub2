@@ -53,7 +53,7 @@ export default class AddToDo extends React.Component {
   }
   storeToDoInList(e, toDoContent) {
     let trimmedContent = toDoContent.trim();
-    console.log(e);
+    //console.log(e);
     //console.log(e.target.tagName);
     if (e.key === 'Escape' && e.target.tagName === 'INPUT') {
       this.clearToDo();
@@ -213,9 +213,25 @@ export default class AddToDo extends React.Component {
       textareastate
     );
   }
-  updateEstimatedTimeofCompletion(event, id, datestate) {
+  updateEstimatedTimeofCompletion(event, id, datestate = 'open') {
     // console.log(event.target.value);
+    if (event.key === 'Enter') {
+      datestate = 'close';
+    }
     let value = event.target.value;
+    if (datestate === 'close') {
+      let selectedDateObj = new Date(value);
+      // console.log(selectedDateObj);
+      let today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDateObj < today) {
+        alert(
+          "Katham Katham :) :) Once End it's always end..Please concentrate on present to glorify future"
+        );
+        return false;
+      }
+    }
+
     let etaList = this.state.toDoDetails.todoETA.slice();
     let itemexist;
     itemexist = etaList.find(({ itemId }) => itemId === id);
@@ -399,6 +415,9 @@ export default class AddToDo extends React.Component {
                       'close'
                     )
                   }
+                  onKeyDown={(eve) =>
+                    this.updateEstimatedTimeofCompletion(eve, index + '-date')
+                  }
                 />{' '}
               </span>
             ) : (
@@ -457,7 +476,7 @@ export default class AddToDo extends React.Component {
     });
   }
   componentDidMount() {
-    console.log('Patta Kutti');
+    //console.log('Patta Kutti');
     //this.setFocusToTextBox();
   }
   hideErrorMessage(event) {
