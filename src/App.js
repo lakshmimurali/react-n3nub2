@@ -213,6 +213,17 @@ export default class AddToDo extends React.Component {
       textareastate
     );
   }
+
+  calculateDays(selectedDate) {
+    let selectedDateObj = new Date(selectedDate);
+    let today = new Date();
+    let differenceBetweenDatesInMilliSeconds =
+      selectedDateObj.getTime() - today.getTime();
+    let noOfDays = Math.ceil(
+      differenceBetweenDatesInMilliSeconds / (1000 * 3600 * 24)
+    );
+    return noOfDays;
+  }
   updateEstimatedTimeofCompletion(event, id, datestate = 'open') {
     // console.log(event.target.value);
     if (event.key === 'Enter') {
@@ -423,7 +434,7 @@ export default class AddToDo extends React.Component {
             ) : (
               <span key={index + 'etainfo'}>
                 {' '}
-                ETA: {etaExist.value}{' '}
+                ETA: {this.calculateDays(etaExist.value)} days{' '}
                 <span
                   key={index + 'editetainfo'}
                   style={{ cursor: 'pointer', color: '#1f29a4' }}
