@@ -213,7 +213,13 @@ export default class AddToDo extends React.Component {
       textareastate
     );
   }
-
+  constructETAText(noOfDays) {
+    return noOfDays === 0
+      ? 'Today'
+      : noOfDays > 1
+      ? noOfDays + ' days'
+      : noOfDays + ' day';
+  }
   calculateDays(selectedDate) {
     let selectedDateObj = new Date(selectedDate);
     let today = new Date();
@@ -222,7 +228,8 @@ export default class AddToDo extends React.Component {
     let noOfDays = Math.ceil(
       differenceBetweenDatesInMilliSeconds / (1000 * 3600 * 24)
     );
-    return noOfDays;
+    let etaText = this.constructETAText(noOfDays);
+    return etaText;
   }
   updateEstimatedTimeofCompletion(event, id, datestate = 'open') {
     // console.log(event.target.value);
@@ -434,7 +441,7 @@ export default class AddToDo extends React.Component {
             ) : (
               <span key={index + 'etainfo'}>
                 {' '}
-                ETA: {this.calculateDays(etaExist.value)} days{' '}
+                ETA: {this.calculateDays(etaExist.value)}
                 <span
                   key={index + 'editetainfo'}
                   style={{ cursor: 'pointer', color: '#1f29a4' }}
@@ -488,7 +495,7 @@ export default class AddToDo extends React.Component {
   }
   componentDidMount() {
     //console.log('Patta Kutti');
-    //this.setFocusToTextBox();
+    this.setFocusToTextBox();
   }
   hideErrorMessage(event) {
     this.setState(function (state) {
