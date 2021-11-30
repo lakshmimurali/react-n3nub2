@@ -501,6 +501,7 @@ export default class AddToDo extends React.Component {
   componentDidMount() {
     //console.log('Patta Kutti');
     this.setFocusToTextBox();
+    document.title = 'To Do App';
   }
   hideErrorMessage(event) {
     this.setState(function (state) {
