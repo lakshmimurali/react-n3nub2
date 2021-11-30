@@ -19,6 +19,7 @@ export default class AddToDo extends React.Component {
     };
     this.textBoxField = React.createRef();
     this.buttonRef = React.createRef();
+    this.dateRef = React.createRef();
     this.hideErrorMessage = this.hideErrorMessage.bind(this);
   }
 
@@ -234,7 +235,10 @@ export default class AddToDo extends React.Component {
   updateEstimatedTimeofCompletion(event, id, datestate = 'open') {
     // console.log(event.target.value);
     if (event.key === 'Enter') {
-      datestate = 'close';
+      //datestate = 'close';
+      console.log(this.dateRef);
+      this.dateRef.current.blur();
+      return null;
     }
     let value = event.target.value;
     if (datestate === 'close') {
@@ -419,6 +423,7 @@ export default class AddToDo extends React.Component {
                   type="date"
                   value={etaExist.value || today}
                   key={index + '-date'}
+                  ref={this.dateRef}
                   onChange={(evnt) => {
                     this.updateEstimatedTimeofCompletion(
                       evnt,
