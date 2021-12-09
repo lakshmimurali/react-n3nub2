@@ -309,15 +309,12 @@ export default class AddToDo extends React.Component {
       if (typeof etaExist === 'undefined') {
         etaExist = {};
         etaExist.datestate = 'open';
+        etaExist.value = new Date().toISOString().slice(0, 10);
       }
       //console.log(etaExist);
       let paperWorkExist = this.state.toDoDetails.paperwork.find(
         ({ itemId }) => itemId === index + '-textarea'
       );
-      //console.log('paperWorkExist', paperWorkExist);
-      let date = new Date();
-      let today =
-        date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
 
       return (
         <div key={index + 'containerdiv'}>
@@ -421,7 +418,7 @@ export default class AddToDo extends React.Component {
                 <input
                   style={{ cursor: 'pointer' }}
                   type="date"
-                  value={etaExist.value || today}
+                  value={etaExist.value}
                   key={index + '-date'}
                   ref={this.dateRef}
                   onChange={(evnt) => {
@@ -500,7 +497,7 @@ export default class AddToDo extends React.Component {
   }
   componentDidMount() {
     //console.log('Patta Kutti');
-    this.setFocusToTextBox();
+    //this.setFocusToTextBox();
     document.title = 'To Do App';
   }
   hideErrorMessage(event) {
