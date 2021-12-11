@@ -552,7 +552,7 @@ export default class AddToDo extends React.Component {
           <button
             role="search"
             name="Search-Todo"
-            onKeyDown={this.searchToDo}
+            onClick={this.searchToDo}
             style={styleForSearchButton}
           >
             {' '}
