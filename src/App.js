@@ -15,12 +15,15 @@ export default class AddToDo extends React.Component {
         selectedPriority: [],
         paperwork: [],
         todoETA: [],
+        searchList: [],
+        isInSearchMode: false,
       },
     };
     this.textBoxField = React.createRef();
     this.buttonRef = React.createRef();
     this.dateRef = React.createRef();
     this.hideErrorMessage = this.hideErrorMessage.bind(this);
+    this.searchToDo = this.searchToDo.bind(this);
   }
 
   setToDo = (eve) => {
@@ -29,6 +32,7 @@ export default class AddToDo extends React.Component {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
           newToDo: toDoContent,
+          isInSearchMode: false,
         }),
       };
     });
@@ -118,6 +122,7 @@ export default class AddToDo extends React.Component {
           newToDo: content,
           editIndex: index,
           labelText: 'Update',
+          isInSearchMode: false,
         }),
       };
     });
@@ -285,10 +290,17 @@ export default class AddToDo extends React.Component {
     event.target.selectionEnd = (0, event.target.value.length);
   }
   renderToDoItems() {
-    if (this.state.toDoDetails.todoList.length === 0) {
+    console.log(this.state.toDoDetails.isInSearchMode);
+    console.log(this.state.toDoDetails.searchList);
+    let toDoList =
+      this.state.toDoDetails.isInSearchMode === true
+        ? this.state.toDoDetails.searchList
+        : this.state.toDoDetails.todoList;
+    console.log(toDoList);
+    if (toDoList.length === 0) {
       return false;
     }
-    return this.state.toDoDetails.todoList.map((value, index) => {
+    return toDoList.map((value, index) => {
       // console.log('regarding paperwork', this.state.toDoDetails.paperwork);
       let selectedPriority = this.state.toDoDetails.selectedPriority.find(
         ({ itemId }) => itemId === index + '-select'
@@ -509,10 +521,44 @@ export default class AddToDo extends React.Component {
       };
     });
   }
+  searchToDo() {
+    let searchString = this.state.toDoDetails.newToDo;
+    let filteredList = this.state.toDoDetails.todoList.filter(
+      (toDoItem, index) => {
+        return toDoItem.includes(searchString) ? true : false;
+      }
+    );
+    //console.log(filteredList);
+    this.setState(function (state) {
+      return {
+        toDoDetails: Object.assign({}, state.toDoDetails, {
+          searchList: filteredList,
+          isInSearchMode: true,
+        }),
+      };
+    });
+  }
   render() {
+    let styleForSearchButton = {
+      float: 'right',
+      cursor: 'pointer',
+      marginTop: '-10px',
+      marginRight: '200px',
+    };
     return (
       <>
         <h3> To Do App </h3>
+        {this.state.toDoDetails.todoList.length > 5 ? (
+          <button
+            role="search"
+            name="Search-Todo"
+            onKeyDown={this.searchToDo}
+            style={styleForSearchButton}
+          >
+            {' '}
+            Search To Do{' '}
+          </button>
+        ) : null}
         <input
           type="text"
           name="gettodo"
@@ -527,7 +573,6 @@ export default class AddToDo extends React.Component {
         />{' '}
         &nbsp;
         <button
-          type="button"
           name="SubmitToDo"
           onClick={(event) =>
             this.storeToDoInList(event, this.state.toDoDetails.newToDo)
