@@ -523,16 +523,47 @@ export default class AddToDo extends React.Component {
   }
   searchToDo() {
     let searchString = this.state.toDoDetails.newToDo;
+    let paperWorkIdList = [];
+    let contentIdsFromPaperWork = [];
+    let indexesOfToDoList = [];
     let filteredList = this.state.toDoDetails.todoList.filter(
       (toDoItem, index) => {
-        return toDoItem.includes(searchString) ? true : false;
+        let itemExist = toDoItem.includes(searchString);
+        if (!itemExist) {
+          paperWorkIdList.push(index + '-textarea');
+        } else {
+          indexesOfToDoList.push(index);
+        }
+        console.log('paperWorkIdList', paperWorkIdList);
+        return itemExist;
       }
     );
+    let paperWorkList = this.state.toDoDetails.paperwork.filter(
+      (paperWorkObj, index) => {
+        let paperWorkContent = paperWorkObj.value;
+        let paperWorkId = paperWorkObj.itemId;
+        let paperWorkExist = paperWorkContent.includes(searchString);
+        if (paperWorkExist) {
+          contentIdsFromPaperWork.push(+paperWorkId.split('-')[0]);
+        }
+        return paperWorkExist;
+      }
+    );
+    //console.log(paperWorkList);
+    let listOfIndexes = indexesOfToDoList.concat(contentIdsFromPaperWork);
+    listOfIndexes.sort((a, b) => a - b);
+    let searchContent = [];
+    console.log('listOfIndexes is', listOfIndexes);
+    listOfIndexes.forEach((toDoIndex, index) => {
+      var toDoItem = this.state.toDoDetails.todoList[+toDoIndex];
+      searchContent.push(toDoItem);
+    });
+    console.log('contentIdsFromPaperWork', contentIdsFromPaperWork);
     //console.log(filteredList);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
-          searchList: filteredList,
+          searchList: searchContent,
           isInSearchMode: true,
         }),
       };
