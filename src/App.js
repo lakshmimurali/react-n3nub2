@@ -58,8 +58,6 @@ export default class AddToDo extends React.Component {
   }
   storeToDoInList(e, toDoContent) {
     let trimmedContent = toDoContent.trim();
-    //console.log(e);
-    //console.log(e.target.tagName);
     if (e.key === 'Escape' && e.target.tagName === 'INPUT') {
       this.clearToDo();
       return false;
@@ -89,7 +87,6 @@ export default class AddToDo extends React.Component {
           };
         });
       } else {
-        //console.log('inside else block');
         let tempToDoList = this.state.toDoDetails.todoList.slice();
         let updatedTempList = tempToDoList.splice(
           this.state.toDoDetails.editIndex,
@@ -205,7 +202,6 @@ export default class AddToDo extends React.Component {
     });
   }
   renderTextAreaToAddPaperWork(obj, id, textareastate) {
-    //console.log(obj, id);
     let paperWorkValue;
     if (typeof obj === 'undefined' || obj.value === 'undefined') {
       //console.log('inside');
@@ -262,7 +258,6 @@ export default class AddToDo extends React.Component {
     let etaList = this.state.toDoDetails.todoETA.slice();
     let itemexist;
     itemexist = etaList.find(({ itemId }) => itemId === id);
-
     // console.log('item', itemexist);
     if (!itemexist) {
       etaList.push({ itemId: id, value: value, datestate: datestate });
@@ -275,7 +270,6 @@ export default class AddToDo extends React.Component {
         }
       });
     }
-
     // console.log(etaList);
     this.setState(function (state) {
       return {
@@ -290,8 +284,6 @@ export default class AddToDo extends React.Component {
     event.target.selectionEnd = (0, event.target.value.length);
   }
   renderToDoItems() {
-    // console.log(this.state.toDoDetails.isInSearchMode);
-    //  console.log(this.state.toDoDetails.searchList);
     let toDoList =
       this.state.toDoDetails.isInSearchMode === true
         ? this.state.toDoDetails.searchList
@@ -301,7 +293,6 @@ export default class AddToDo extends React.Component {
       return false;
     }
     return toDoList.map((value, index) => {
-      // console.log('regarding paperwork', this.state.toDoDetails.paperwork);
       if (Object.keys(value).length === 0 && value.constructor === Object) {
         return false;
       }
@@ -529,7 +520,6 @@ export default class AddToDo extends React.Component {
     let paperWorkIdList = [];
     let contentIdsFromPaperWork = [];
     let indexesOfToDoList = [];
-    let listOfIndexesNotExistInTOdoAndPaperWork = [];
     let filteredList = this.state.toDoDetails.todoList.filter(
       (toDoItem, index) => {
         let itemExist = toDoItem.includes(searchString);
@@ -564,8 +554,6 @@ export default class AddToDo extends React.Component {
       }
     });
     console.log('searchContent', searchContent);
-    // console.log('contentIdsFromPaperWork', contentIdsFromPaperWork);
-    //console.log(filteredList);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
