@@ -241,7 +241,7 @@ export default class AddToDo extends React.Component {
     // console.log(event.target.value);
     if (event.key === 'Enter') {
       //datestate = 'close';
-      console.log(this.dateRef);
+      // console.log(this.dateRef);
       this.dateRef.current.blur();
       return null;
     }
@@ -290,18 +290,21 @@ export default class AddToDo extends React.Component {
     event.target.selectionEnd = (0, event.target.value.length);
   }
   renderToDoItems() {
-    console.log(this.state.toDoDetails.isInSearchMode);
-    console.log(this.state.toDoDetails.searchList);
+    // console.log(this.state.toDoDetails.isInSearchMode);
+    //  console.log(this.state.toDoDetails.searchList);
     let toDoList =
       this.state.toDoDetails.isInSearchMode === true
         ? this.state.toDoDetails.searchList
         : this.state.toDoDetails.todoList;
-    console.log(toDoList);
+    // console.log(toDoList);
     if (toDoList.length === 0) {
       return false;
     }
     return toDoList.map((value, index) => {
       // console.log('regarding paperwork', this.state.toDoDetails.paperwork);
+      if (Object.keys(value).length === 0 && value.constructor === Object) {
+        return false;
+      }
       let selectedPriority = this.state.toDoDetails.selectedPriority.find(
         ({ itemId }) => itemId === index + '-select'
       );
@@ -526,12 +529,11 @@ export default class AddToDo extends React.Component {
     let paperWorkIdList = [];
     let contentIdsFromPaperWork = [];
     let indexesOfToDoList = [];
+    let listOfIndexesNotExistInTOdoAndPaperWork = [];
     let filteredList = this.state.toDoDetails.todoList.filter(
       (toDoItem, index) => {
         let itemExist = toDoItem.includes(searchString);
-        if (!itemExist) {
-          paperWorkIdList.push(index + '-textarea');
-        } else {
+        if (itemExist) {
           indexesOfToDoList.push(index);
         }
         console.log('paperWorkIdList', paperWorkIdList);
@@ -554,11 +556,15 @@ export default class AddToDo extends React.Component {
     listOfIndexes.sort((a, b) => a - b);
     let searchContent = [];
     console.log('listOfIndexes is', listOfIndexes);
-    listOfIndexes.forEach((toDoIndex, index) => {
-      var toDoItem = this.state.toDoDetails.todoList[+toDoIndex];
-      searchContent.push(toDoItem);
+    this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
+      if (listOfIndexes.includes(index)) {
+        searchContent.push(toDoItem);
+      } else {
+        searchContent.push({});
+      }
     });
-    console.log('contentIdsFromPaperWork', contentIdsFromPaperWork);
+    console.log('searchContent', searchContent);
+    // console.log('contentIdsFromPaperWork', contentIdsFromPaperWork);
     //console.log(filteredList);
     this.setState(function (state) {
       return {
