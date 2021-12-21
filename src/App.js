@@ -24,6 +24,8 @@ export default class AddToDo extends React.Component {
     this.dateRef = React.createRef();
     this.hideErrorMessage = this.hideErrorMessage.bind(this);
     this.searchToDo = this.searchToDo.bind(this);
+    this.filterTasksBasedOnPriorityOrETA =
+      this.filterTasksBasedOnPriorityOrETA.bind(this);
   }
 
   setToDo = (eve) => {
@@ -222,7 +224,7 @@ export default class AddToDo extends React.Component {
       ? noOfDays + ' days'
       : noOfDays + ' day';
   }
-  calculateDays(selectedDate) {
+  calculateDays(selectedDate, skipformat) {
     let selectedDateObj = new Date(selectedDate);
     let today = new Date();
     let differenceBetweenDatesInMilliSeconds =
@@ -230,11 +232,15 @@ export default class AddToDo extends React.Component {
     let noOfDays = Math.ceil(
       differenceBetweenDatesInMilliSeconds / (1000 * 3600 * 24)
     );
-    let etaText = this.constructETAText(noOfDays);
-    return etaText;
+    if (skipformat) {
+      return noOfDays;
+    } else {
+      let etaText = this.constructETAText(noOfDays);
+      return etaText;
+    }
   }
   updateEstimatedTimeofCompletion(event, id, datestate = 'open') {
-    // console.log(event.target.value);
+    console.log(event.target.value);
     if (event.key === 'Enter') {
       //datestate = 'close';
       // console.log(this.dateRef);
@@ -254,16 +260,22 @@ export default class AddToDo extends React.Component {
         return false;
       }
     }
-
+    let noOfDays = this.calculateDays(value, true);
     let etaList = this.state.toDoDetails.todoETA.slice();
     let itemexist;
     itemexist = etaList.find(({ itemId }) => itemId === id);
     // console.log('item', itemexist);
     if (!itemexist) {
-      etaList.push({ itemId: id, value: value, datestate: datestate });
+      etaList.push({
+        itemId: id,
+        value: value,
+        datestate: datestate,
+        noOfDays: noOfDays,
+      });
     } else {
       itemexist.value = value;
       itemexist.datestate = datestate;
+      itemexist.noOfDays = noOfDays;
       etaList.forEach((item_priority, index) => {
         if (item_priority.itemId === id) {
           etaList[index] = itemexist;
@@ -515,32 +527,43 @@ export default class AddToDo extends React.Component {
       };
     });
   }
+  sortArrayElements(givenArray) {
+    return givenArray.sort((a, b) => a - b);
+  }
+  getListOfMatchedEntries(list, pattern, property = 'value') {
+    let matchedEntries = [];
+    list.forEach((entry) => {
+      console.log(entry);
+      let value = String(entry[property]);
+      console.log(value);
+      let uniqueId = entry.itemId;
+      let entryExist = value.includes(String(pattern));
+      if (entryExist) {
+        matchedEntries.push(+uniqueId.split('-')[0]);
+      }
+    });
+    return matchedEntries;
+  }
   searchToDo() {
     let searchString = this.state.toDoDetails.newToDo;
-    let paperWorkIdList = [];
     let contentIdsFromPaperWork = [];
     let indexesOfToDoList = [];
-    let filteredList = this.state.toDoDetails.todoList.filter(
-      (toDoItem, index) => {
-        let itemExist = toDoItem.includes(searchString);
-        if (itemExist) {
-          indexesOfToDoList.push(index);
-        }
-        console.log('paperWorkIdList', paperWorkIdList);
-        return itemExist;
+    this.state.toDoDetails.todoList.filter((toDoItem, index) => {
+      let itemExist = toDoItem.includes(searchString);
+      if (itemExist) {
+        indexesOfToDoList.push(index);
       }
-    );
-    let paperWorkList = this.state.toDoDetails.paperwork.filter(
-      (paperWorkObj, index) => {
-        let paperWorkContent = paperWorkObj.value;
-        let paperWorkId = paperWorkObj.itemId;
-        let paperWorkExist = paperWorkContent.includes(searchString);
-        if (paperWorkExist) {
-          contentIdsFromPaperWork.push(+paperWorkId.split('-')[0]);
-        }
-        return paperWorkExist;
+      return itemExist;
+    });
+    this.state.toDoDetails.paperwork.filter((paperWorkObj) => {
+      let paperWorkContent = paperWorkObj.value;
+      let paperWorkId = paperWorkObj.itemId;
+      let paperWorkExist = paperWorkContent.includes(searchString);
+      if (paperWorkExist) {
+        contentIdsFromPaperWork.push(+paperWorkId.split('-')[0]);
       }
-    );
+      return paperWorkExist;
+    });
     //console.log(paperWorkList);
     let listOfIndexes = indexesOfToDoList.concat(contentIdsFromPaperWork);
     listOfIndexes.sort((a, b) => a - b);
@@ -563,6 +586,56 @@ export default class AddToDo extends React.Component {
       };
     });
   }
+  filterTasksBasedOnPriorityOrETA(event) {
+    let input = event.target.value;
+    let matchedEntries;
+    let searchContent = [];
+    //let dateRegex = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
+    if (isNaN(parseInt(input))) {
+      // For ETA
+      input =
+        input === 'Today'
+          ? 0
+          : input === 'This Week'
+          ? 7
+          : input === 'This Month'
+          ? 31
+          : input === 'This Year'
+          ? 365
+          : 366;
+      console.log(input);
+      matchedEntries = this.getListOfMatchedEntries(
+        this.state.toDoDetails.todoETA,
+        input,
+        'noOfDays'
+      );
+      matchedEntries = this.sortArrayElements(matchedEntries);
+    } else {
+      // For Priority
+      matchedEntries = this.getListOfMatchedEntries(
+        this.state.toDoDetails.selectedPriority,
+        input
+      );
+      matchedEntries = this.sortArrayElements(matchedEntries);
+      console.log(matchedEntries);
+    }
+    this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
+      if (matchedEntries.includes(index)) {
+        searchContent.push(toDoItem);
+      } else {
+        searchContent.push({});
+      }
+    });
+    console.log('searchContent', searchContent);
+    this.setState(function (state) {
+      return {
+        toDoDetails: Object.assign({}, state.toDoDetails, {
+          searchList: searchContent,
+          isInSearchMode: true,
+        }),
+      };
+    });
+  }
   render() {
     let styleForSearchButton = {
       float: 'right',
@@ -570,19 +643,49 @@ export default class AddToDo extends React.Component {
       marginTop: '-10px',
       marginRight: '200px',
     };
+
+    let styleForSelectDropDown = {
+      cursor: 'pointer',
+      float: 'right',
+      marginTop: '-10px',
+      marginRight: '100px',
+    };
     return (
       <>
         <h3> To Do App </h3>
         {this.state.toDoDetails.todoList.length > 5 ? (
-          <button
-            role="search"
-            name="Search-Todo"
-            onClick={this.searchToDo}
-            style={styleForSearchButton}
-          >
-            {' '}
-            Search To Do{' '}
-          </button>
+          <div class="filterandsearchcontainer">
+            <button
+              role="search"
+              name="Search-Todo"
+              onClick={this.searchToDo}
+              style={styleForSearchButton}
+            >
+              {' '}
+              Search To Do{' '}
+            </button>
+            <select
+              style={styleForSelectDropDown}
+              value="Filter Your Tasks"
+              onChange={this.filterTasksBasedOnPriorityOrETA}
+            >
+              <option value="none"> Filter Your Tasks</option>
+              <optgroup label="Filter Based On ETA">
+                <option value="Today">Today</option>
+                <option value="This Week">This Week</option>
+                <option value="This Month">This Month</option>
+                <option value="This Year">This Year</option>
+                <option value="Archived">Archived Tasks</option>
+              </optgroup>
+              <optgroup label="Filter Based on Priority ">
+                <option value="1">Low</option>
+                <option value="2">Medium</option>
+                <option value="3">Critical</option>
+                <option value="4">High</option>
+                <option value="5">ShowStopper</option>
+              </optgroup>
+            </select>
+          </div>
         ) : null}
         <input
           type="text"
