@@ -17,6 +17,7 @@ export default class AddToDo extends React.Component {
         todoETA: [],
         searchList: [],
         isInSearchMode: false,
+        selectedFilterOption: 'Filter',
       },
     };
     this.textBoxField = React.createRef();
@@ -537,7 +538,30 @@ export default class AddToDo extends React.Component {
       let value = String(entry[property]);
       console.log(value);
       let uniqueId = entry.itemId;
-      let entryExist = value.includes(String(pattern));
+      let entryExist;
+      if (property !== 'value') {
+        if (pattern === 0) {
+          entryExist = value.includes(String(pattern));
+        } else if (pattern === 7) {
+          if (value <= 7) {
+            entryExist = true;
+          }
+        } else if (pattern === 31) {
+          if (value <= 31) {
+            entryExist = true;
+          }
+        } else if (pattern === 365) {
+          if (value <= 365) {
+            entryExist = true;
+          }
+        } else if (pattern === 366) {
+          if (value > 365) {
+            entryExist = true;
+          }
+        }
+      } else {
+        entryExist = value.includes(String(pattern));
+      }
       if (entryExist) {
         matchedEntries.push(+uniqueId.split('-')[0]);
       }
@@ -588,6 +612,13 @@ export default class AddToDo extends React.Component {
   }
   filterTasksBasedOnPriorityOrETA(event) {
     let input = event.target.value;
+    this.setState(function (state) {
+      return {
+        toDoDetails: Object.assign({}, state.toDoDetails, {
+          selectedFilterOption: input,
+        }),
+      };
+    });
     let matchedEntries;
     let searchContent = [];
     //let dateRegex = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
@@ -654,7 +685,7 @@ export default class AddToDo extends React.Component {
       <>
         <h3> To Do App </h3>
         {this.state.toDoDetails.todoList.length > 5 ? (
-          <div class="filterandsearchcontainer">
+          <div className="filterandsearchcontainer">
             <button
               role="search"
               name="Search-Todo"
@@ -666,7 +697,7 @@ export default class AddToDo extends React.Component {
             </button>
             <select
               style={styleForSelectDropDown}
-              value="Filter Your Tasks"
+              value={this.state.toDoDetails.selectedFilterOption}
               onChange={this.filterTasksBasedOnPriorityOrETA}
             >
               <option value="none"> Filter Your Tasks</option>
