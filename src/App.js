@@ -21,8 +21,6 @@ export default class AddToDo extends React.Component {
       },
     };
     this.textBoxField = React.createRef();
-    this.buttonRef = React.createRef();
-    this.dateRef = React.createRef();
     this.hideErrorMessage = this.hideErrorMessage.bind(this);
     this.searchToDo = this.searchToDo.bind(this);
     this.clearSearch = this.clearSearch.bind(this);
@@ -245,8 +243,7 @@ export default class AddToDo extends React.Component {
     console.log(event.target.value);
     if (event.key === 'Enter') {
       //datestate = 'close';
-      // console.log(this.dateRef);
-      this.dateRef.current.blur();
+      event.target.blur();
       return null;
     }
     let value = event.target.value;
@@ -440,7 +437,6 @@ export default class AddToDo extends React.Component {
                   type="date"
                   value={etaExist.value}
                   key={index + '-date'}
-                  ref={this.dateRef}
                   onChange={(evnt) => {
                     this.updateEstimatedTimeofCompletion(
                       evnt,
@@ -735,11 +731,12 @@ export default class AddToDo extends React.Component {
             <button
               role="Clear search"
               name="Clear-Search"
+              disabled={!this.state.toDoDetails.isInSearchMode}
               onClick={this.clearSearch}
               style={styleForClearButton}
             >
               {' '}
-              Clear Search{' '}
+              Show All Tasks{' '}
             </button>
           </div>
         ) : null}
