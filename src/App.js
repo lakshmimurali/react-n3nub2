@@ -25,6 +25,7 @@ export default class AddToDo extends React.Component {
     this.dateRef = React.createRef();
     this.hideErrorMessage = this.hideErrorMessage.bind(this);
     this.searchToDo = this.searchToDo.bind(this);
+    this.clearSearch = this.clearSearch.bind(this);
     this.filterTasksBasedOnPriorityOrETA =
       this.filterTasksBasedOnPriorityOrETA.bind(this);
   }
@@ -568,6 +569,15 @@ export default class AddToDo extends React.Component {
     });
     return matchedEntries;
   }
+  clearSearch() {
+    this.setState(function (state) {
+      return {
+        toDoDetails: Object.assign({}, state.toDoDetails, {
+          isInSearchMode: false,
+        }),
+      };
+    });
+  }
   searchToDo() {
     let searchString = this.state.toDoDetails.newToDo;
     let contentIdsFromPaperWork = [];
@@ -681,6 +691,12 @@ export default class AddToDo extends React.Component {
       marginTop: '-10px',
       marginRight: '100px',
     };
+    let styleForClearButton = {
+      cursor: 'pointer',
+      float: 'right',
+      marginTop: '-10px',
+      marginRight: '250px',
+    };
     return (
       <>
         <h3> To Do App </h3>
@@ -716,6 +732,15 @@ export default class AddToDo extends React.Component {
                 <option value="5">ShowStopper</option>
               </optgroup>
             </select>
+            <button
+              role="Clear search"
+              name="Clear-Search"
+              onClick={this.clearSearch}
+              style={styleForClearButton}
+            >
+              {' '}
+              Clear Search{' '}
+            </button>
           </div>
         ) : null}
         <input
