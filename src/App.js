@@ -233,7 +233,7 @@ export default class AddToDo extends React.Component {
       differenceBetweenDatesInMilliSeconds / (1000 * 3600 * 24)
     );
     if (skipformat) {
-      return noOfDays;
+      return Math.abs(noOfDays);
     } else {
       let etaText = this.constructETAText(noOfDays);
       return etaText;
@@ -531,14 +531,15 @@ export default class AddToDo extends React.Component {
   getListOfMatchedEntries(list, pattern, property = 'value') {
     let matchedEntries = [];
     list.forEach((entry) => {
-      console.log(entry);
+      //console.log(entry);
       let value = String(entry[property]);
-      console.log(value);
+      //console.log(value);
+      //console.log('pattern', pattern);
       let uniqueId = entry.itemId;
       let entryExist;
       if (property !== 'value') {
         if (pattern === 0) {
-          entryExist = value.includes(String(pattern));
+          entryExist = +value === +pattern;
         } else if (pattern === 7) {
           if (value <= 7) {
             entryExist = true;
@@ -551,10 +552,6 @@ export default class AddToDo extends React.Component {
           if (value <= 365) {
             entryExist = true;
           }
-        } else if (pattern === 366) {
-          if (value > 365) {
-            entryExist = true;
-          }
         }
       } else {
         entryExist = value.includes(String(pattern));
@@ -563,6 +560,7 @@ export default class AddToDo extends React.Component {
         matchedEntries.push(+uniqueId.split('-')[0]);
       }
     });
+    console.log('matchedEntries', matchedEntries);
     return matchedEntries;
   }
   clearSearch() {
@@ -718,7 +716,6 @@ export default class AddToDo extends React.Component {
                 <option value="This Week">This Week</option>
                 <option value="This Month">This Month</option>
                 <option value="This Year">This Year</option>
-                <option value="Archived">Archived Tasks</option>
               </optgroup>
               <optgroup label="Filter Based on Priority ">
                 <option value="1">Low</option>
