@@ -127,9 +127,10 @@ export default class AddToDo extends React.Component {
     });
   }
   removeToDo(index) {
-    let updatedToDoList = this.state.toDoDetails.todoList
+    let toDoList = this.state.toDoDetails.todoList;
+    let updatedToDoList = toDoList
       .slice(0, index)
-      .concat(this.state.toDoDetails.todoList.slice(index + 1));
+      .concat(toDoList.slice(index + 1));
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -137,6 +138,50 @@ export default class AddToDo extends React.Component {
         }),
       };
     });
+    let priorityList = this.state.toDoDetails.selectedPriority;
+    let priorityIndex = this.getIndexOfMatchedEntry(priorityList, index);
+    if (priorityIndex != -1) {
+      let updatedPriorityList = priorityList
+        .slice(0, priorityIndex)
+        .concat(priorityList.slice(priorityIndex + 1));
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            selectedPriority: updatedPriorityList,
+          }),
+        };
+      });
+    }
+
+    let etaList = this.state.toDoDetails.todoETA;
+    let etaIndex = this.getIndexOfMatchedEntry(etaList, index);
+
+    if (etaIndex != -1) {
+      let updatedETAList = etaList
+        .slice(0, etaIndex)
+        .concat(etaList.slice(etaIndex + 1));
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            todoETA: updatedETAList,
+          }),
+        };
+      });
+    }
+    let paperWorkList = this.state.toDoDetails.paperwork;
+    let paperWorkIndex = this.getIndexOfMatchedEntry(paperWorkList, index);
+    if (paperWorkIndex != -1) {
+      let updatedPaperWorkList = paperWorkList
+        .slice(0, paperWorkIndex)
+        .concat(paperWorkList.slice(paperWorkIndex + 1));
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            paperwork: updatedPaperWorkList,
+          }),
+        };
+      });
+    }
   }
   updatePriorityOfToDo(evnt, id, selectState) {
     let value = evnt.target.value;
@@ -240,7 +285,7 @@ export default class AddToDo extends React.Component {
     }
   }
   updateEstimatedTimeofCompletion(event, id, datestate = 'open') {
-    console.log(event.target.value);
+    //console.log(event.target.value);
     if (event.key === 'Enter') {
       //datestate = 'close';
       event.target.blur();
@@ -533,8 +578,6 @@ export default class AddToDo extends React.Component {
     list.forEach((entry) => {
       //console.log(entry);
       let value = String(entry[property]);
-      //console.log(value);
-      //console.log('pattern', pattern);
       let uniqueId = entry.itemId;
       let entryExist;
       if (property !== 'value') {
@@ -560,8 +603,22 @@ export default class AddToDo extends React.Component {
         matchedEntries.push(+uniqueId.split('-')[0]);
       }
     });
-    console.log('matchedEntries', matchedEntries);
+    //console.log('matchedEntries', matchedEntries);
     return matchedEntries;
+  }
+  getIndexOfMatchedEntry(list, pattern) {
+    let IndexOfMatchedEntry = -1;
+    list.forEach((entry, index) => {
+      //console.log(entry);
+      let uniqueId = entry.itemId;
+      let entryExist = uniqueId.includes(String(pattern));
+
+      if (entryExist) {
+        // console.log('index is', index);
+        IndexOfMatchedEntry = index;
+      }
+    });
+    return IndexOfMatchedEntry;
   }
   clearSearch() {
     this.setState(function (state) {
@@ -596,7 +653,7 @@ export default class AddToDo extends React.Component {
     let listOfIndexes = indexesOfToDoList.concat(contentIdsFromPaperWork);
     listOfIndexes.sort((a, b) => a - b);
     let searchContent = [];
-    console.log('listOfIndexes is', listOfIndexes);
+    //console.log('listOfIndexes is', listOfIndexes);
     this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
       if (listOfIndexes.includes(index)) {
         searchContent.push(toDoItem);
@@ -604,7 +661,7 @@ export default class AddToDo extends React.Component {
         searchContent.push({});
       }
     });
-    console.log('searchContent', searchContent);
+    // console.log('searchContent', searchContent);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -638,7 +695,7 @@ export default class AddToDo extends React.Component {
           : input === 'This Year'
           ? 365
           : 366;
-      console.log(input);
+      // console.log(input);
       matchedEntries = this.getListOfMatchedEntries(
         this.state.toDoDetails.todoETA,
         input,
@@ -652,7 +709,7 @@ export default class AddToDo extends React.Component {
         input
       );
       matchedEntries = this.sortArrayElements(matchedEntries);
-      console.log(matchedEntries);
+      //console.log(matchedEntries);
     }
     this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
       if (matchedEntries.includes(index)) {
