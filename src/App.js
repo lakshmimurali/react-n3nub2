@@ -344,13 +344,19 @@ export default class AddToDo extends React.Component {
       this.state.toDoDetails.isInSearchMode === true
         ? this.state.toDoDetails.searchList
         : this.state.toDoDetails.todoList;
+    let isSearchMatchsCriteria = 0;
     // console.log(toDoList);
-    if (toDoList.length === 0) {
-      return false;
+    if (toDoList.length === 0 && this.state.toDoDetails.isInSearchMode) {
+      return <p> Data Not Found </p>;
     }
     return toDoList.map((value, index) => {
       if (Object.keys(value).length === 0 && value.constructor === Object) {
-        return false;
+        isSearchMatchsCriteria++;
+        if (isSearchMatchsCriteria === toDoList.length) {
+          return <p> Data Not Found </p>;
+        } else {
+          return false;
+        }
       }
       let selectedPriority = this.state.toDoDetails.selectedPriority.find(
         ({ itemId }) => itemId === index + '-select'
