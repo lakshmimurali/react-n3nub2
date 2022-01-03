@@ -431,6 +431,31 @@ export default class AddToDo extends React.Component {
     //console.log(event);
     event.target.selectionEnd = (0, event.target.value.length);
   }
+  handleHover(event, id) {
+    console.log(id);
+    this.setState(function (prevState) {
+      //console.log(prevState.toDoDetails.checkedItems);
+      return {
+        toDoDetails: Object.assign({}, prevState.toDoDetails, {
+          checkedItems: prevState.toDoDetails.checkedItems.set(id, true),
+        }),
+      };
+    });
+  }
+  handleLeave(event, id) {
+    this.setState(function (prevState) {
+      let checkedStatus = prevState.toDoDetails.checkedItems.get(id);
+      console.log('checkedStatus', checkedStatus);
+      return {
+        toDoDetails: Object.assign({}, prevState.toDoDetails, {
+          checkedItems: prevState.toDoDetails.checkedItems.set(
+            id,
+            !!checkedStatus
+          ),
+        }),
+      };
+    });
+  }
   renderToDoItems() {
     let toDoList =
       this.state.toDoDetails.isInSearchMode === true
@@ -442,7 +467,7 @@ export default class AddToDo extends React.Component {
       return <p> Data Not Found </p>;
     }
     return toDoList.map((value, index) => {
-      console.log('inside>>>>>>>>>>>>>>>');
+      // console.log('inside>>>>>>>>>>>>>>>');
       if (Object.keys(value).length === 0 && value.constructor === Object) {
         isSearchMatchsCriteria++;
         if (isSearchMatchsCriteria === toDoList.length) {
@@ -489,21 +514,30 @@ export default class AddToDo extends React.Component {
       let paperWorkExist = this.state.toDoDetails.paperwork.find(
         ({ itemId }) => itemId === index + '-textarea'
       );
-
+      let cbStatus = this.state.toDoDetails.checkedItems.get(
+        index + '-statusselect'
+      );
       return (
         <div key={index + 'containerdiv'}>
-          <p key={index}>
-            <input
-              type="checkbox"
-              key={index + '-checkbox'}
-              checked={this.state.toDoDetails.checkedItems.get(
-                index + '-statusselect'
-              )}
-              name={index + '-statusselect'}
-              onChange={(eve) =>
-                this.handleStatusChange(eve, index + '-statusselect')
-              }
-            />
+          <p
+            key={index}
+            onMouseOver={(hoverEvent) =>
+              this.handleHover(hoverEvent, index + '-statusselect')
+            }
+            onMouseLeave={(mouseEvent) =>
+              this.handleLeave(mouseEvent, index + '-statusselect')
+            }
+          >
+            {cbStatus === true ? (
+              <input
+                type="checkbox"
+                key={index + '-checkbox'}
+                name={index + '-statusselect'}
+                onChange={(eve) =>
+                  this.handleStatusChange(eve, index + '-statusselect')
+                }
+              />
+            ) : null}
             <span
               style={{ cursor: 'pointer', color: 'blue' }}
               onClick={() =>
