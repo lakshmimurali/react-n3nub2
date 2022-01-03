@@ -16,6 +16,7 @@ export default class AddToDo extends React.Component {
         paperwork: [],
         todoETA: [],
         searchList: [],
+        status: [],
         isInSearchMode: false,
         selectedFilterOption: 'Filter',
       },
@@ -220,6 +221,43 @@ export default class AddToDo extends React.Component {
       };
     });
   }
+  updateStatusOfToDo(evnt, id, actionState) {
+    let value = evnt.target.value;
+    if (value === 'none') {
+      return false;
+    }
+    let statusList = this.state.toDoDetails.status.slice();
+    let itemexist;
+    itemexist = statusList.find(({ itemId }) => itemId === id);
+
+    //console.log('item', itemexist);
+    if (!itemexist) {
+      statusList.push({
+        itemId: id,
+        value: value,
+        action: actionState,
+        inDB: false,
+      });
+    } else {
+      if (actionState === 'close') {
+        itemexist.inDB = true;
+      }
+      itemexist.value = value;
+      itemexist.action = actionState;
+      statusList.forEach((item_priority, index) => {
+        if (item_priority.itemId === id) {
+          statusList[index] = itemexist;
+        }
+      });
+    }
+    this.setState(function (state) {
+      return {
+        toDoDetails: Object.assign({}, state.toDoDetails, {
+          status: statusList,
+        }),
+      };
+    });
+  }
   updatePaperWorkForToDo(value = '', id, textareastate) {
     let paperWorkList = this.state.toDoDetails.paperwork.slice();
     let itemexist;
@@ -370,6 +408,19 @@ export default class AddToDo extends React.Component {
       if (selectedPriority.inDB) {
         selectedPriority.textLabel = 'Update Priority';
       }
+      let selectedStatus = this.state.toDoDetails.status.find(
+        ({ itemId }) => itemId === index + '-statusselect'
+      );
+      if (typeof selectedStatus === 'undefined') {
+        selectedStatus = {};
+        selectedStatus.action = 'open';
+        selectedStatus.inDB = false;
+      }
+      selectedStatus.textLabel = 'Select Status';
+      if (selectedStatus.inDB) {
+        selectedStatus.textLabel = 'Update Status';
+      }
+
       //console.log(selectedPriority);
       let etaExist = this.state.toDoDetails.todoETA.find(
         ({ itemId }) => itemId === index + '-date'
@@ -527,6 +578,76 @@ export default class AddToDo extends React.Component {
                 </span>{' '}
               </span>
             )}{' '}
+            | &nbsp;
+            {selectedStatus.action === 'open' ? (
+              <span>
+                {' '}
+                <span key={index + 'statussp'}>
+                  {' '}
+                  {selectedStatus.textLabel}:{' '}
+                </span>
+                <select
+                  key={index + '-statusselect'}
+                  style={{ cursor: 'pointer' }}
+                  value={
+                    selectedStatus.value === 'undefined'
+                      ? 'Select an Option'
+                      : selectedStatus.value
+                  }
+                  onChange={(event) =>
+                    this.updateStatusOfToDo(
+                      event,
+                      index + '-statusselect',
+                      'open'
+                    )
+                  }
+                  onBlur={(evt) =>
+                    this.updateStatusOfToDo(
+                      evt,
+                      index + '-statusselect',
+                      'close'
+                    )
+                  }
+                >
+                  <option key={index + 'statusnone'} value="none">
+                    Select an Option
+                  </option>
+
+                  <option key={index + '1'} value="1">
+                    Not Started
+                  </option>
+                  <option key={index + '2'} value="2">
+                    In-Progress
+                  </option>
+                  <option key={index + '3'} value="3">
+                    On-Hold
+                  </option>
+                  <option key={index + '4'} value="4">
+                    Finished
+                  </option>
+                </select>{' '}
+                &nbsp;
+              </span>
+            ) : (
+              <span key={index + '-status'}>
+                {' '}
+                Selected Status: {selectedStatus.value}{' '}
+                <span
+                  key={index + 'editStatus'}
+                  style={{ cursor: 'pointer', color: '#1f29a4' }}
+                  onClick={(evnt) => {
+                    this.updateStatusOfToDo(
+                      { target: { value: selectedStatus.value } },
+                      index + '-statusselect',
+                      'open'
+                    );
+                  }}
+                >
+                  {' '}
+                  - Edit Status &nbsp;
+                </span>
+              </span>
+            )}
           </p>
           {typeof paperWorkExist !== 'undefined' &&
           paperWorkExist.textareastate === 'close' ? (
@@ -557,6 +678,7 @@ export default class AddToDo extends React.Component {
               </span>
             </p>
           ) : null}
+
           <hr key={index + 'hr'} />
         </div>
       );
@@ -678,6 +800,7 @@ export default class AddToDo extends React.Component {
     });
   }
   filterTasksBasedOnPriorityOrETA(event) {
+    console.log(event);
     let input = event.target.value;
     this.setState(function (state) {
       return {
@@ -780,12 +903,18 @@ export default class AddToDo extends React.Component {
                 <option value="This Month">This Month</option>
                 <option value="This Year">This Year</option>
               </optgroup>
-              <optgroup label="Filter Based on Priority ">
+              <optgroup label="Filter Based on Priority">
                 <option value="1">Low</option>
                 <option value="2">Medium</option>
                 <option value="3">Critical</option>
                 <option value="4">High</option>
                 <option value="5">ShowStopper</option>
+              </optgroup>
+              <optgroup label="Filter Based on Status">
+                <option value="1">Not Started</option>
+                <option value="2">In-Progress</option>
+                <option value="3">On-Hold</option>
+                <option value="4">Finished</option>
               </optgroup>
             </select>
             <button
