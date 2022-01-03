@@ -17,6 +17,7 @@ export default class AddToDo extends React.Component {
         todoETA: [],
         searchList: [],
         status: [],
+        checkedItems: new Map(),
         isInSearchMode: false,
         selectedFilterOption: 'Filter',
       },
@@ -234,7 +235,37 @@ export default class AddToDo extends React.Component {
       };
     });
   }
+  handleStatusChange(evt, id) {
+    const item = evt.target.name;
+    const isChecked = evt.target.checked;
+    this.setState(function (prevState) {
+      console.log(prevState.toDoDetails.checkedItems);
+      return {
+        toDoDetails: Object.assign({}, prevState.toDoDetails, {
+          checkedItems: prevState.toDoDetails.checkedItems.set(id, isChecked),
+        }),
+      };
+    });
+  }
+
+  updateStatusOfToDoItems(obj) {
+    for (const [key, value] of this.state.toDoDetails.checkedItems.entries()) {
+      //console.log(key + ' = ' + value);
+      //console.log(obj, key);
+      let that = this;
+      setTimeout(function () {
+        if (value === true) {
+          that.updateStatusOfToDo(obj, key, 'close');
+        }
+      }, 100);
+    }
+  }
+  massUpdateStatusOfToDo(value) {
+    console.log(value);
+    this.updateStatusOfToDoItems({ target: { value: value } });
+  }
   updateStatusOfToDo(evnt, id, actionState) {
+    console.log(id, actionState);
     let value = evnt.target.value;
     if (value === 'none') {
       return false;
@@ -451,6 +482,15 @@ export default class AddToDo extends React.Component {
       return (
         <div key={index + 'containerdiv'}>
           <p key={index}>
+            <input
+              type="checkbox"
+              key={index + '-checkbox'}
+              value={value}
+              name={index + '-statuscheckbox'}
+              onChange={(eve) =>
+                this.handleStatusChange(eve, index + '-statusselect')
+              }
+            />
             <span
               style={{ cursor: 'pointer', color: 'blue' }}
               onClick={() =>
@@ -902,6 +942,12 @@ export default class AddToDo extends React.Component {
       marginTop: '-10px',
       marginRight: '250px',
     };
+    let styleForStatusButton = {
+      cursor: 'pointer',
+      float: 'right',
+      marginTop: '-10px',
+      marginRight: '300px',
+    };
     return (
       <>
         <h3> To Do App </h3>
@@ -952,6 +998,29 @@ export default class AddToDo extends React.Component {
               {' '}
               Show All Tasks{' '}
             </button>
+            <select
+              style={styleForStatusButton}
+              onChange={(event) =>
+                this.massUpdateStatusOfToDo(event.target.value)
+              }
+            >
+              <option key="statusnone" value="none">
+                Select an Option
+              </option>
+
+              <option key="statusnotstarted" value="1">
+                Not Started
+              </option>
+              <option key="status-inprogress" value="2">
+                In-Progress
+              </option>
+              <option key="status-onhold" value="3">
+                On-Hold
+              </option>
+              <option key="status-finished" value="4">
+                Finished
+              </option>
+            </select>
           </div>
         ) : null}
         <input
