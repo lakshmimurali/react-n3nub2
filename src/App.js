@@ -239,7 +239,7 @@ export default class AddToDo extends React.Component {
     const item = evt.target.name;
     const isChecked = evt.target.checked;
     this.setState(function (prevState) {
-      console.log(prevState.toDoDetails.checkedItems);
+      // console.log(prevState.toDoDetails.checkedItems);
       return {
         toDoDetails: Object.assign({}, prevState.toDoDetails, {
           checkedItems: prevState.toDoDetails.checkedItems.set(id, isChecked),
@@ -247,7 +247,16 @@ export default class AddToDo extends React.Component {
       };
     });
   }
-
+  resetCheckBoxOfStatus(id) {
+    this.setState(function (prevState) {
+      //console.log(prevState.toDoDetails.checkedItems);
+      return {
+        toDoDetails: Object.assign({}, prevState.toDoDetails, {
+          checkedItems: prevState.toDoDetails.checkedItems.set(id, false),
+        }),
+      };
+    });
+  }
   updateStatusOfToDoItems(obj) {
     for (const [key, value] of this.state.toDoDetails.checkedItems.entries()) {
       //console.log(key + ' = ' + value);
@@ -256,16 +265,17 @@ export default class AddToDo extends React.Component {
       setTimeout(function () {
         if (value === true) {
           that.updateStatusOfToDo(obj, key, 'close');
+          that.resetCheckBoxOfStatus(key);
         }
       }, 100);
     }
   }
   massUpdateStatusOfToDo(value) {
-    console.log(value);
+    // console.log(value);
     this.updateStatusOfToDoItems({ target: { value: value } });
   }
   updateStatusOfToDo(evnt, id, actionState) {
-    console.log(id, actionState);
+    // console.log(id, actionState);
     let value = evnt.target.value;
     if (value === 'none') {
       return false;
@@ -432,6 +442,7 @@ export default class AddToDo extends React.Component {
       return <p> Data Not Found </p>;
     }
     return toDoList.map((value, index) => {
+      console.log('inside>>>>>>>>>>>>>>>');
       if (Object.keys(value).length === 0 && value.constructor === Object) {
         isSearchMatchsCriteria++;
         if (isSearchMatchsCriteria === toDoList.length) {
@@ -485,8 +496,10 @@ export default class AddToDo extends React.Component {
             <input
               type="checkbox"
               key={index + '-checkbox'}
-              value={value}
-              name={index + '-statuscheckbox'}
+              checked={this.state.toDoDetails.checkedItems.get(
+                index + '-statusselect'
+              )}
+              name={index + '-statusselect'}
               onChange={(eve) =>
                 this.handleStatusChange(eve, index + '-statusselect')
               }
@@ -759,10 +772,10 @@ export default class AddToDo extends React.Component {
     list.forEach((entry) => {
       //console.log(entry);
       let value = String(entry[property]);
-      console.log(value);
+      // console.log(value);
 
       let uniqueId = entry.itemId;
-      console.log(uniqueId);
+      // console.log(uniqueId);
       let entryExist;
       if (property !== 'value') {
         if (pattern === 0) {
@@ -857,7 +870,7 @@ export default class AddToDo extends React.Component {
   }
   filterTasksBasedOnPriorityOrETA(event) {
     let input = event.target.value;
-    console.log(input);
+    // console.log(input);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -888,7 +901,7 @@ export default class AddToDo extends React.Component {
       );
       matchedEntries = this.sortArrayElements(matchedEntries);
     } else {
-      console.log(input.endsWith('n'));
+      // console.log(input.endsWith('n'));
       if (input.endsWith('n')) {
         matchedEntries = this.getListOfMatchedEntries(
           this.state.toDoDetails.status,
@@ -912,7 +925,7 @@ export default class AddToDo extends React.Component {
         searchContent.push({});
       }
     });
-    console.log('searchContent', searchContent);
+    // console.log('searchContent', searchContent);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -1000,12 +1013,12 @@ export default class AddToDo extends React.Component {
             </button>
             <select
               style={styleForStatusButton}
-              onChange={(event) =>
+              onBlur={(event) =>
                 this.massUpdateStatusOfToDo(event.target.value)
               }
             >
               <option key="statusnone" value="none">
-                Select an Option
+                Mass Update Status
               </option>
 
               <option key="statusnotstarted" value="1">
