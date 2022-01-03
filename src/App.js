@@ -153,7 +153,20 @@ export default class AddToDo extends React.Component {
         };
       });
     }
-
+    let statusList = this.state.toDoDetails.status;
+    let statusIndex = this.getIndexOfMatchedEntry(statusList, index);
+    if (statusIndex != -1) {
+      let updatedStatusList = statusList
+        .slice(0, statusIndex)
+        .concat(statusList.slice(statusIndex + 1));
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            status: updatedStatusList,
+          }),
+        };
+      });
+    }
     let etaList = this.state.toDoDetails.todoETA;
     let etaIndex = this.getIndexOfMatchedEntry(etaList, index);
 
@@ -706,7 +719,10 @@ export default class AddToDo extends React.Component {
     list.forEach((entry) => {
       //console.log(entry);
       let value = String(entry[property]);
+      console.log(value);
+
       let uniqueId = entry.itemId;
+      console.log(uniqueId);
       let entryExist;
       if (property !== 'value') {
         if (pattern === 0) {
@@ -800,8 +816,8 @@ export default class AddToDo extends React.Component {
     });
   }
   filterTasksBasedOnPriorityOrETA(event) {
-    console.log(event);
     let input = event.target.value;
+    console.log(input);
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -832,12 +848,21 @@ export default class AddToDo extends React.Component {
       );
       matchedEntries = this.sortArrayElements(matchedEntries);
     } else {
-      // For Priority
-      matchedEntries = this.getListOfMatchedEntries(
-        this.state.toDoDetails.selectedPriority,
-        input
-      );
-      matchedEntries = this.sortArrayElements(matchedEntries);
+      console.log(input.endsWith('n'));
+      if (input.endsWith('n')) {
+        matchedEntries = this.getListOfMatchedEntries(
+          this.state.toDoDetails.status,
+          input.split('n')[0]
+        );
+        matchedEntries = this.sortArrayElements(matchedEntries);
+      } else {
+        // For Priority
+        matchedEntries = this.getListOfMatchedEntries(
+          this.state.toDoDetails.selectedPriority,
+          input
+        );
+        matchedEntries = this.sortArrayElements(matchedEntries);
+      }
       //console.log(matchedEntries);
     }
     this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
@@ -911,10 +936,10 @@ export default class AddToDo extends React.Component {
                 <option value="5">ShowStopper</option>
               </optgroup>
               <optgroup label="Filter Based on Status">
-                <option value="1">Not Started</option>
-                <option value="2">In-Progress</option>
-                <option value="3">On-Hold</option>
-                <option value="4">Finished</option>
+                <option value="1n">Not Started</option>
+                <option value="2n">In-Progress</option>
+                <option value="3n">On-Hold</option>
+                <option value="4n">Finished</option>
               </optgroup>
             </select>
             <button
