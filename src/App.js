@@ -432,26 +432,33 @@ export default class AddToDo extends React.Component {
     event.target.selectionEnd = (0, event.target.value.length);
   }
   handleHover(event, id) {
-    console.log(id);
+    //console.log(id);
     this.setState(function (prevState) {
+      let checkeBoxStatus = prevState.toDoDetails.checkedItems.get(id);
+      let newStatus = 'hovered';
+      if (checkeBoxStatus === true) {
+        newStatus = true;
+      }
       //console.log(prevState.toDoDetails.checkedItems);
       return {
         toDoDetails: Object.assign({}, prevState.toDoDetails, {
-          checkedItems: prevState.toDoDetails.checkedItems.set(id, true),
+          checkedItems: prevState.toDoDetails.checkedItems.set(id, newStatus),
         }),
       };
     });
   }
   handleLeave(event, id) {
     this.setState(function (prevState) {
-      let checkedStatus = prevState.toDoDetails.checkedItems.get(id);
-      console.log('checkedStatus', checkedStatus);
+      let checkeBoxStatus = prevState.toDoDetails.checkedItems.get(id);
+      let newStatus = false;
+      //console.log(checkeBoxStatus);
+      if (checkeBoxStatus === true) {
+        newStatus = true;
+      }
+      console.log('checkedStatus', checkeBoxStatus);
       return {
         toDoDetails: Object.assign({}, prevState.toDoDetails, {
-          checkedItems: prevState.toDoDetails.checkedItems.set(
-            id,
-            !!checkedStatus
-          ),
+          checkedItems: prevState.toDoDetails.checkedItems.set(id, newStatus),
         }),
       };
     });
@@ -518,17 +525,17 @@ export default class AddToDo extends React.Component {
         index + '-statusselect'
       );
       return (
-        <div key={index + 'containerdiv'}>
-          <p
-            key={index}
-            onMouseOver={(hoverEvent) =>
-              this.handleHover(hoverEvent, index + '-statusselect')
-            }
-            onMouseLeave={(mouseEvent) =>
-              this.handleLeave(mouseEvent, index + '-statusselect')
-            }
-          >
-            {cbStatus === true ? (
+        <div
+          key={index + 'containerdiv'}
+          onMouseOver={(hoverEvent) =>
+            this.handleHover(hoverEvent, index + '-statusselect')
+          }
+          onMouseLeave={(mouseEvent) =>
+            this.handleLeave(mouseEvent, index + '-statusselect')
+          }
+        >
+          <p key={index}>
+            {cbStatus === true || cbStatus === 'hovered' ? (
               <input
                 type="checkbox"
                 key={index + '-checkbox'}
@@ -981,19 +988,19 @@ export default class AddToDo extends React.Component {
       cursor: 'pointer',
       float: 'right',
       marginTop: '-10px',
-      marginRight: '100px',
+      marginRight: '250px',
     };
     let styleForClearButton = {
       cursor: 'pointer',
       float: 'right',
       marginTop: '-10px',
-      marginRight: '250px',
+      marginRight: '300px',
     };
     let styleForStatusButton = {
       cursor: 'pointer',
       float: 'right',
       marginTop: '-10px',
-      marginRight: '300px',
+      marginRight: '100px',
     };
     return (
       <>
@@ -1009,6 +1016,30 @@ export default class AddToDo extends React.Component {
               {' '}
               Search To Do{' '}
             </button>
+            <select
+              style={styleForStatusButton}
+              onBlur={(event) =>
+                this.massUpdateStatusOfToDo(event.target.value)
+              }
+            >
+              <option key="statusnone" value="none">
+                Mass Update Status
+              </option>
+
+              <option key="statusnotstarted" value="1">
+                Not Started
+              </option>
+              <option key="status-inprogress" value="2">
+                In-Progress
+              </option>
+              <option key="status-onhold" value="3">
+                On-Hold
+              </option>
+              <option key="status-finished" value="4">
+                Finished
+              </option>
+            </select>
+
             <select
               style={styleForSelectDropDown}
               value={this.state.toDoDetails.selectedFilterOption}
@@ -1045,29 +1076,6 @@ export default class AddToDo extends React.Component {
               {' '}
               Show All Tasks{' '}
             </button>
-            <select
-              style={styleForStatusButton}
-              onBlur={(event) =>
-                this.massUpdateStatusOfToDo(event.target.value)
-              }
-            >
-              <option key="statusnone" value="none">
-                Mass Update Status
-              </option>
-
-              <option key="statusnotstarted" value="1">
-                Not Started
-              </option>
-              <option key="status-inprogress" value="2">
-                In-Progress
-              </option>
-              <option key="status-onhold" value="3">
-                On-Hold
-              </option>
-              <option key="status-finished" value="4">
-                Finished
-              </option>
-            </select>
           </div>
         ) : null}
         <input
