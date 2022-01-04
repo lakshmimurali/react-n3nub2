@@ -22,10 +22,12 @@ export default class AddToDo extends React.Component {
         selectedFilterOption: 'Filter',
         paginationReached: false,
         paginationBatch: 1,
+        selectedPaginationIndex: 0,
       },
     };
     this.textBoxField = React.createRef();
     this.hideErrorMessage = this.hideErrorMessage.bind(this);
+    this.loadPaginatedToDoList = this.loadPaginatedToDoList.bind(this);
     this.searchToDo = this.searchToDo.bind(this);
     this.clearSearch = this.clearSearch.bind(this);
     this.filterTasksBasedOnPriorityOrETA =
@@ -112,6 +114,43 @@ export default class AddToDo extends React.Component {
         });
       }
       this.clearToDo();
+      if (
+        this.state.toDoDetails.todoList.length > 12 &&
+        this.state.toDoDetails.paginationReached === false
+      ) {
+        this.setState(function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationReached: true,
+            }),
+          };
+        });
+      }
+      let pagiCount = Math.ceil(this.state.toDoDetails.todoList.length / 12);
+      if (
+        this.state.toDoDetails.paginationBatch < pagiCount &&
+        this.state.toDoDetails.paginationReached
+      ) {
+        this.setState(function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationBatch: pagiCount,
+            }),
+          };
+        });
+      }
+      if (
+        this.state.toDoDetails.paginationBatch > pagiCount &&
+        this.state.toDoDetails.paginationReached
+      ) {
+        this.setState(function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationBatch: pagiCount,
+            }),
+          };
+        });
+      }
     } else {
       return null;
     }
@@ -477,7 +516,8 @@ export default class AddToDo extends React.Component {
       };
     });
   }
-  renderToDoItems() {
+  renderToDoItems(index = 0) {
+    console.log('inside renderToDotems', index);
     let toDoList =
       this.state.toDoDetails.isInSearchMode === true
         ? this.state.toDoDetails.searchList
@@ -486,6 +526,13 @@ export default class AddToDo extends React.Component {
     // console.log(toDoList);
     if (toDoList.length === 0 && this.state.toDoDetails.isInSearchMode) {
       return <p> Data Not Found </p>;
+    }
+
+    let paginatedList = [];
+    if (index > 0) {
+      let startValue = (index - 1) * 12;
+      toDoList.splice(startValue, startValue + 12);
+      console.log(toDoList, startValue);
     }
     return toDoList.map((value, index) => {
       // console.log('inside>>>>>>>>>>>>>>>');
@@ -497,43 +544,7 @@ export default class AddToDo extends React.Component {
           return false;
         }
       }
-      if (
-        toDoList.length > 12 &&
-        this.state.toDoDetails.paginationReached === false
-      ) {
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              paginationReached: true,
-            }),
-          };
-        });
-      }
-      let pagiCount = Math.ceil(toDoList.length / 12);
-      if (
-        this.state.toDoDetails.paginationBatch < pagiCount &&
-        this.state.toDoDetails.paginationReached
-      ) {
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              paginationBatch: pagiCount,
-            }),
-          };
-        });
-      }
-      if (
-        this.state.toDoDetails.paginationBatch > pagiCount &&
-        this.state.toDoDetails.paginationReached
-      ) {
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              paginationBatch: pagiCount,
-            }),
-          };
-        });
-      }
+
       let selectedPriority = this.state.toDoDetails.selectedPriority.find(
         ({ itemId }) => itemId === index + '-select'
       );
@@ -852,6 +863,22 @@ export default class AddToDo extends React.Component {
       );
     });
   }
+  loadPaginatedToDoList(ev, index) {
+    console.log('inside paginated list', index, ev.target);
+    console.log(this.state.toDoDetails.paginationBatch);
+    this.setState(function (state) {
+      return {
+        toDoDetails: Object.assign({}, state.toDoDetails, {
+          selectedPaginationIndex: index,
+        }),
+      };
+    });
+    let that = this;
+    setTimeout(function () {
+      console.log('inside render Items', index);
+      that.renderToDoItems(index);
+    }, 100);
+  }
   componentDidMount() {
     //console.log('Patta Kutti');
     //this.setFocusToTextBox();
@@ -1063,6 +1090,9 @@ export default class AddToDo extends React.Component {
       marginTop: '-10px',
       marginRight: '100px',
     };
+    let styleForPaginationButton = {
+      cursor: 'pointer',
+    };
 
     let paginationHTML = [];
     if (
@@ -1074,7 +1104,19 @@ export default class AddToDo extends React.Component {
         index <= this.state.toDoDetails.paginationBatch;
         index++
       ) {
-        paginationHTML.push(<span key={index}>{index} &nbsp; &nbsp; </span>);
+        paginationHTML.push(
+          <span
+            className={`handcursor ${
+              index === this.state.toDoDetails.selectedPaginationIndex
+                ? 'highlight'
+                : ''
+            }`}
+            key={index}
+            onClick={(evet) => this.loadPaginatedToDoList(evet, index)}
+          >
+            {index} &nbsp; &nbsp;{' '}
+          </span>
+        );
       }
     }
     return (
