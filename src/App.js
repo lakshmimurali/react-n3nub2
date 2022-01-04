@@ -20,6 +20,8 @@ export default class AddToDo extends React.Component {
         checkedItems: new Map(),
         isInSearchMode: false,
         selectedFilterOption: 'Filter',
+        paginationReached: false,
+        paginationBatch: 1,
       },
     };
     this.textBoxField = React.createRef();
@@ -193,6 +195,18 @@ export default class AddToDo extends React.Component {
         return {
           toDoDetails: Object.assign({}, state.toDoDetails, {
             paperwork: updatedPaperWorkList,
+          }),
+        };
+      });
+    }
+    if (
+      this.state.toDoDetails.todoList.length < 13 &&
+      this.state.toDoDetails.paginationReached === true
+    ) {
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            paginationReached: false,
           }),
         };
       });
@@ -483,6 +497,43 @@ export default class AddToDo extends React.Component {
           return false;
         }
       }
+      if (
+        toDoList.length > 12 &&
+        this.state.toDoDetails.paginationReached === false
+      ) {
+        this.setState(function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationReached: true,
+            }),
+          };
+        });
+      }
+      let pagiCount = Math.ceil(toDoList.length / 12);
+      if (
+        this.state.toDoDetails.paginationBatch < pagiCount &&
+        this.state.toDoDetails.paginationReached
+      ) {
+        this.setState(function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationBatch: pagiCount,
+            }),
+          };
+        });
+      }
+      if (
+        this.state.toDoDetails.paginationBatch > pagiCount &&
+        this.state.toDoDetails.paginationReached
+      ) {
+        this.setState(function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationBatch: pagiCount,
+            }),
+          };
+        });
+      }
       let selectedPriority = this.state.toDoDetails.selectedPriority.find(
         ({ itemId }) => itemId === index + '-select'
       );
@@ -525,268 +576,278 @@ export default class AddToDo extends React.Component {
         index + '-statusselect'
       );
       return (
-        <div
-          key={index + 'containerdiv'}
-          onMouseOver={(hoverEvent) =>
-            this.handleHover(hoverEvent, index + '-statusselect')
-          }
-          onMouseLeave={(mouseEvent) =>
-            this.handleLeave(mouseEvent, index + '-statusselect')
-          }
-        >
-          <p key={index}>
-            {cbStatus === true || cbStatus === 'hovered' ? (
-              <input
-                type="checkbox"
-                key={index + '-checkbox'}
-                name={index + '-statusselect'}
-                onChange={(eve) =>
-                  this.handleStatusChange(eve, index + '-statusselect')
-                }
-              />
-            ) : null}
-            <span
-              style={{ cursor: 'pointer', color: 'blue' }}
-              onClick={() =>
-                this.renderTextAreaToAddPaperWork(
-                  paperWorkExist,
-                  index,
-                  'close'
-                )
-              }
-            >
-              {' '}
-              {value}{' '}
-            </span>
-            <span
-              style={{ cursor: 'pointer' }}
-              title="Delete-ToDo"
-              key={index + '-x'}
-              onClick={() => this.removeToDo(index)}
-            >
-              &nbsp; | X |
-            </span>
-            <span
-              style={{ cursor: 'pointer', color: 'green' }}
-              key={index + '-e'}
-              onClick={() => this.editToDo(index, value)}
-            >
-              {' '}
-              Edit
-            </span>{' '}
-            |
-            {selectedPriority.selectState === 'open' ? (
-              <span>
-                {' '}
-                <span key={index + 'sp'}> {selectedPriority.textLabel}: </span>
-                <select
-                  key={index + '-select'}
-                  style={{ cursor: 'pointer' }}
-                  value={
-                    selectedPriority.value === 'undefined'
-                      ? 'Select an Option'
-                      : selectedPriority.value
-                  }
-                  onChange={(event) =>
-                    this.updatePriorityOfToDo(event, index + '-select', 'open')
-                  }
-                  onBlur={(evt) =>
-                    this.updatePriorityOfToDo(evt, index + '-select', 'close')
-                  }
-                >
-                  <option key={index + 'none'} value="none">
-                    Select an Option
-                  </option>
-
-                  <option key={index + '1'} value="1">
-                    Low Priority
-                  </option>
-                  <option key={index + '2'} value="2">
-                    Medium
-                  </option>
-                  <option key={index + '3'} value="3">
-                    Critical
-                  </option>
-                  <option key={index + '4'} value="4">
-                    High
-                  </option>
-                  <option key={index + '5'} value="5">
-                    ShowStopper
-                  </option>
-                </select>{' '}
-                &nbsp;
-              </span>
-            ) : (
-              <span key={index + '-priority'}>
-                {' '}
-                Selected Priorty: {selectedPriority.value}{' '}
-                <span
-                  key={index + 'editpriority'}
-                  style={{ cursor: 'pointer', color: '#1f29a4' }}
-                  onClick={(evnt) => {
-                    this.updatePriorityOfToDo(
-                      { target: { value: selectedPriority.value } },
-                      index + '-select',
-                      'open'
-                    );
-                  }}
-                >
-                  {' '}
-                  - Edit Priority &nbsp;
-                </span>
-              </span>
-            )}
-            | &nbsp;
-            {etaExist.datestate === 'open' ? (
-              <span key={index + '-date-apply-eta'}>
-                {' '}
-                Apply ETA: &nbsp;{' '}
+        <div key={index + 'todo-pagicontainer'}>
+          <div
+            className="todolistrow"
+            key={index + 'todocontainer'}
+            onMouseOver={(hoverEvent) =>
+              this.handleHover(hoverEvent, index + '-statusselect')
+            }
+            onMouseLeave={(mouseEvent) =>
+              this.handleLeave(mouseEvent, index + '-statusselect')
+            }
+          >
+            <p key={index}>
+              {cbStatus === true || cbStatus === 'hovered' ? (
                 <input
-                  style={{ cursor: 'pointer' }}
-                  type="date"
-                  value={etaExist.value}
-                  key={index + '-date'}
-                  onChange={(evnt) => {
-                    this.updateEstimatedTimeofCompletion(
-                      evnt,
-                      index + '-date',
-                      'open'
-                    );
-                  }}
-                  onBlur={(event) =>
-                    this.updateEstimatedTimeofCompletion(
-                      event,
-                      index + '-date',
-                      'close'
-                    )
+                  type="checkbox"
+                  key={index + '-checkbox'}
+                  name={index + '-statusselect'}
+                  onChange={(eve) =>
+                    this.handleStatusChange(eve, index + '-statusselect')
                   }
-                  onKeyDown={(eve) =>
-                    this.updateEstimatedTimeofCompletion(eve, index + '-date')
-                  }
-                />{' '}
-              </span>
-            ) : (
-              <span key={index + 'etainfo'}>
+                />
+              ) : null}
+              <span
+                style={{ cursor: 'pointer', color: 'blue' }}
+                onClick={() =>
+                  this.renderTextAreaToAddPaperWork(
+                    paperWorkExist,
+                    index,
+                    'close'
+                  )
+                }
+              >
                 {' '}
-                ETA: {this.calculateDays(etaExist.value)}
-                <span
-                  key={index + 'editetainfo'}
-                  style={{ cursor: 'pointer', color: '#1f29a4' }}
-                  onClick={(evnt) => {
-                    this.updateEstimatedTimeofCompletion(
-                      { target: { value: etaExist.value } },
-                      index + '-date',
-                      'open'
-                    );
-                  }}
-                >
-                  {' '}
-                  - Edit ETA
-                </span>{' '}
+                {value}{' '}
               </span>
-            )}{' '}
-            | &nbsp;
-            {selectedStatus.action === 'open' ? (
-              <span>
+              <span
+                style={{ cursor: 'pointer' }}
+                title="Delete-ToDo"
+                key={index + '-x'}
+                onClick={() => this.removeToDo(index)}
+              >
+                &nbsp; | X |
+              </span>
+              <span
+                style={{ cursor: 'pointer', color: 'green' }}
+                key={index + '-e'}
+                onClick={() => this.editToDo(index, value)}
+              >
                 {' '}
-                <span key={index + 'statussp'}>
+                Edit
+              </span>{' '}
+              |
+              {selectedPriority.selectState === 'open' ? (
+                <span>
                   {' '}
-                  {selectedStatus.textLabel}:{' '}
-                </span>
-                <select
-                  key={index + '-statusselect'}
-                  style={{ cursor: 'pointer' }}
-                  value={
-                    selectedStatus.value === 'undefined'
-                      ? 'Select an Option'
-                      : selectedStatus.value
-                  }
-                  onChange={(event) =>
-                    this.updateStatusOfToDo(
-                      event,
-                      index + '-statusselect',
-                      'open'
-                    )
-                  }
-                  onBlur={(evt) =>
-                    this.updateStatusOfToDo(
-                      evt,
-                      index + '-statusselect',
-                      'close'
-                    )
-                  }
-                >
-                  <option key={index + 'statusnone'} value="none">
-                    Select an Option
-                  </option>
+                  <span key={index + 'sp'}>
+                    {' '}
+                    {selectedPriority.textLabel}:{' '}
+                  </span>
+                  <select
+                    key={index + '-select'}
+                    style={{ cursor: 'pointer' }}
+                    value={
+                      selectedPriority.value === 'undefined'
+                        ? 'Select an Option'
+                        : selectedPriority.value
+                    }
+                    onChange={(event) =>
+                      this.updatePriorityOfToDo(
+                        event,
+                        index + '-select',
+                        'open'
+                      )
+                    }
+                    onBlur={(evt) =>
+                      this.updatePriorityOfToDo(evt, index + '-select', 'close')
+                    }
+                  >
+                    <option key={index + 'none'} value="none">
+                      Select an Option
+                    </option>
 
-                  <option key={index + '1'} value="1">
-                    Not Started
-                  </option>
-                  <option key={index + '2'} value="2">
-                    In-Progress
-                  </option>
-                  <option key={index + '3'} value="3">
-                    On-Hold
-                  </option>
-                  <option key={index + '4'} value="4">
-                    Finished
-                  </option>
-                </select>{' '}
-                &nbsp;
-              </span>
-            ) : (
-              <span key={index + '-status'}>
-                {' '}
-                Selected Status: {selectedStatus.value}{' '}
-                <span
-                  key={index + 'editStatus'}
-                  style={{ cursor: 'pointer', color: '#1f29a4' }}
-                  onClick={(evnt) => {
-                    this.updateStatusOfToDo(
-                      { target: { value: selectedStatus.value } },
-                      index + '-statusselect',
-                      'open'
-                    );
-                  }}
-                >
-                  {' '}
-                  - Edit Status &nbsp;
+                    <option key={index + '1'} value="1">
+                      Low Priority
+                    </option>
+                    <option key={index + '2'} value="2">
+                      Medium
+                    </option>
+                    <option key={index + '3'} value="3">
+                      Critical
+                    </option>
+                    <option key={index + '4'} value="4">
+                      High
+                    </option>
+                    <option key={index + '5'} value="5">
+                      ShowStopper
+                    </option>
+                  </select>{' '}
+                  &nbsp;
                 </span>
-              </span>
-            )}
-          </p>
-          {typeof paperWorkExist !== 'undefined' &&
-          paperWorkExist.textareastate === 'close' ? (
-            <textarea
-              key={index + '-textarea'}
-              placeholder="Plan your paper work here. To Save click outside the box"
-              onChange={(evt) =>
-                this.renderTextAreaToAddPaperWork(evt.target, index, 'close')
-              }
-              value={paperWorkExist.value}
-              onBlur={(event) =>
-                this.updatePaperWorkForToDo(
-                  event.target.value,
-                  index + '-textarea',
-                  'open'
-                )
-              }
-              onFocus={(evnt) => this.setFocusToTextArea(evnt)}
-              autoFocus
-              rows={5}
-              cols={60}
-            />
-          ) : paperWorkExist && paperWorkExist.value !== '' ? (
-            <p key={index + 'pwp'} style={{ whiteSpace: 'pre' }}>
-              {' '}
-              <span key={index + 'pwpdetails'} style={{ marginLeft: -10 }}>
-                Details: <br /> {paperWorkExist.value}
-              </span>
+              ) : (
+                <span key={index + '-priority'}>
+                  {' '}
+                  Selected Priorty: {selectedPriority.value}{' '}
+                  <span
+                    key={index + 'editpriority'}
+                    style={{ cursor: 'pointer', color: '#1f29a4' }}
+                    onClick={(evnt) => {
+                      this.updatePriorityOfToDo(
+                        { target: { value: selectedPriority.value } },
+                        index + '-select',
+                        'open'
+                      );
+                    }}
+                  >
+                    {' '}
+                    - Edit Priority &nbsp;
+                  </span>
+                </span>
+              )}
+              | &nbsp;
+              {etaExist.datestate === 'open' ? (
+                <span key={index + '-date-apply-eta'}>
+                  {' '}
+                  Apply ETA: &nbsp;{' '}
+                  <input
+                    style={{ cursor: 'pointer' }}
+                    type="date"
+                    value={etaExist.value}
+                    key={index + '-date'}
+                    onChange={(evnt) => {
+                      this.updateEstimatedTimeofCompletion(
+                        evnt,
+                        index + '-date',
+                        'open'
+                      );
+                    }}
+                    onBlur={(event) =>
+                      this.updateEstimatedTimeofCompletion(
+                        event,
+                        index + '-date',
+                        'close'
+                      )
+                    }
+                    onKeyDown={(eve) =>
+                      this.updateEstimatedTimeofCompletion(eve, index + '-date')
+                    }
+                  />{' '}
+                </span>
+              ) : (
+                <span key={index + 'etainfo'}>
+                  {' '}
+                  ETA: {this.calculateDays(etaExist.value)}
+                  <span
+                    key={index + 'editetainfo'}
+                    style={{ cursor: 'pointer', color: '#1f29a4' }}
+                    onClick={(evnt) => {
+                      this.updateEstimatedTimeofCompletion(
+                        { target: { value: etaExist.value } },
+                        index + '-date',
+                        'open'
+                      );
+                    }}
+                  >
+                    {' '}
+                    - Edit ETA
+                  </span>{' '}
+                </span>
+              )}{' '}
+              | &nbsp;
+              {selectedStatus.action === 'open' ? (
+                <span>
+                  {' '}
+                  <span key={index + 'statussp'}>
+                    {' '}
+                    {selectedStatus.textLabel}:{' '}
+                  </span>
+                  <select
+                    key={index + '-statusselect'}
+                    style={{ cursor: 'pointer' }}
+                    value={
+                      selectedStatus.value === 'undefined'
+                        ? 'Select an Option'
+                        : selectedStatus.value
+                    }
+                    onChange={(event) =>
+                      this.updateStatusOfToDo(
+                        event,
+                        index + '-statusselect',
+                        'open'
+                      )
+                    }
+                    onBlur={(evt) =>
+                      this.updateStatusOfToDo(
+                        evt,
+                        index + '-statusselect',
+                        'close'
+                      )
+                    }
+                  >
+                    <option key={index + 'statusnone'} value="none">
+                      Select an Option
+                    </option>
+
+                    <option key={index + '1'} value="1">
+                      Not Started
+                    </option>
+                    <option key={index + '2'} value="2">
+                      In-Progress
+                    </option>
+                    <option key={index + '3'} value="3">
+                      On-Hold
+                    </option>
+                    <option key={index + '4'} value="4">
+                      Finished
+                    </option>
+                  </select>{' '}
+                  &nbsp;
+                </span>
+              ) : (
+                <span key={index + '-status'}>
+                  {' '}
+                  Selected Status: {selectedStatus.value}{' '}
+                  <span
+                    key={index + 'editStatus'}
+                    style={{ cursor: 'pointer', color: '#1f29a4' }}
+                    onClick={(evnt) => {
+                      this.updateStatusOfToDo(
+                        { target: { value: selectedStatus.value } },
+                        index + '-statusselect',
+                        'open'
+                      );
+                    }}
+                  >
+                    {' '}
+                    - Edit Status &nbsp;
+                  </span>
+                </span>
+              )}
             </p>
-          ) : null}
+            {typeof paperWorkExist !== 'undefined' &&
+            paperWorkExist.textareastate === 'close' ? (
+              <textarea
+                key={index + '-textarea'}
+                placeholder="Plan your paper work here. To Save click outside the box"
+                onChange={(evt) =>
+                  this.renderTextAreaToAddPaperWork(evt.target, index, 'close')
+                }
+                value={paperWorkExist.value}
+                onBlur={(event) =>
+                  this.updatePaperWorkForToDo(
+                    event.target.value,
+                    index + '-textarea',
+                    'open'
+                  )
+                }
+                onFocus={(evnt) => this.setFocusToTextArea(evnt)}
+                autoFocus
+                rows={5}
+                cols={60}
+              />
+            ) : paperWorkExist && paperWorkExist.value !== '' ? (
+              <p key={index + 'pwp'} style={{ whiteSpace: 'pre' }}>
+                {' '}
+                <span key={index + 'pwpdetails'} style={{ marginLeft: -10 }}>
+                  Details: <br /> {paperWorkExist.value}
+                </span>
+              </p>
+            ) : null}
 
-          <hr key={index + 'hr'} />
+            <hr key={index + 'hr'} />
+          </div>
         </div>
       );
     });
@@ -1002,6 +1063,20 @@ export default class AddToDo extends React.Component {
       marginTop: '-10px',
       marginRight: '100px',
     };
+
+    let paginationHTML = [];
+    if (
+      this.state.toDoDetails.paginationReached &&
+      this.state.toDoDetails.paginationBatch >= 1
+    ) {
+      for (
+        let index = 1;
+        index <= this.state.toDoDetails.paginationBatch;
+        index++
+      ) {
+        paginationHTML.push(<span key={index}>{index} &nbsp; &nbsp; </span>);
+      }
+    }
     return (
       <>
         <h3> To Do App </h3>
@@ -1121,6 +1196,9 @@ export default class AddToDo extends React.Component {
           </span>
         ) : null}
         {this.renderToDoItems()}
+        {this.state.toDoDetails.paginationBatch >= 1 ? (
+          <div className="paginationContainer">{paginationHTML}</div>
+        ) : null}
       </>
     );
   }
