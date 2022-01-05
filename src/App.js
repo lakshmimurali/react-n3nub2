@@ -40,7 +40,7 @@ export default class AddToDo extends React.Component {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
           newToDo: toDoContent,
-          isInSearchMode: false,
+          // isInSearchMode: false,
         }),
       };
     });
@@ -113,48 +113,87 @@ export default class AddToDo extends React.Component {
           };
         });
       }
+      this.handlerForPaginationButtonStates();
       this.clearToDo();
-      if (
-        this.state.toDoDetails.todoList.length > 12 &&
-        this.state.toDoDetails.paginationReached === false
-      ) {
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              paginationReached: true,
-            }),
-          };
-        });
-      }
-      let pagiCount = Math.ceil(this.state.toDoDetails.todoList.length / 12);
-      if (
-        this.state.toDoDetails.paginationBatch < pagiCount &&
-        this.state.toDoDetails.paginationReached
-      ) {
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              paginationBatch: pagiCount,
-            }),
-          };
-        });
-      }
-      if (
-        this.state.toDoDetails.paginationBatch > pagiCount &&
-        this.state.toDoDetails.paginationReached
-      ) {
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              paginationBatch: pagiCount,
-            }),
-          };
-        });
-      }
     } else {
       return null;
     }
   }
+  handlerForPaginationButtonStates(index) {
+    let toDoList = this.state.toDoDetails.todoList;
+    let paginationReached = this.state.toDoDetails.paginationReached;
+    let paginationBatch = this.state.toDoDetails.paginationBatch;
+    if (toDoList.length > 11 && paginationReached === false) {
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            paginationReached: true,
+          }),
+        };
+      });
+    }
+    let pagiCount = Math.ceil(toDoList.length / 12);
+    if (paginationBatch < pagiCount && paginationReached) {
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            paginationBatch: pagiCount,
+          }),
+        };
+      });
+    }
+    if (paginationBatch > pagiCount && paginationReached) {
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            paginationBatch: pagiCount,
+          }),
+        };
+      });
+    }
+    let that = this;
+    setTimeout(function () {
+      that.renderPaginatedList(index), 100;
+    });
+  }
+  renderPaginatedList(index) {
+    // console.log('inside');
+    console.log(
+      this.state.toDoDetails.paginationReached,
+      this.state.toDoDetails.paginationBatch
+    );
+    let paginatedList = [];
+    let searchContent = [];
+    if (this.state.toDoDetails.paginationReached) {
+      let startValue =
+        ((index || this.state.toDoDetails.paginationBatch) - 1) * 12;
+      paginatedList = this.state.toDoDetails.todoList.slice(
+        startValue,
+        startValue + 12
+      );
+      console.log(paginatedList, startValue);
+
+      this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
+        if (paginatedList.includes(index + '')) {
+          searchContent.push(toDoItem);
+        } else {
+          searchContent.push({});
+        }
+      });
+      console.log(searchContent);
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            searchList: searchContent,
+            isInSearchMode: true,
+            selectedPaginationIndex:
+              index || this.state.toDoDetails.paginationBatch,
+          }),
+        };
+      });
+    }
+  }
+
   editToDo(index, content) {
     this.setFocusToTextBox();
     this.setState(function (state) {
@@ -164,7 +203,7 @@ export default class AddToDo extends React.Component {
           newToDo: content,
           editIndex: index,
           labelText: 'Update',
-          isInSearchMode: false,
+          // isInSearchMode: false,
         }),
       };
     });
@@ -528,12 +567,6 @@ export default class AddToDo extends React.Component {
       return <p> Data Not Found </p>;
     }
 
-    let paginatedList = [];
-    if (index > 0) {
-      let startValue = (index - 1) * 12;
-      toDoList.splice(startValue, startValue + 12);
-      console.log(toDoList, startValue);
-    }
     return toDoList.map((value, index) => {
       // console.log('inside>>>>>>>>>>>>>>>');
       if (Object.keys(value).length === 0 && value.constructor === Object) {
@@ -865,19 +898,7 @@ export default class AddToDo extends React.Component {
   }
   loadPaginatedToDoList(ev, index) {
     console.log('inside paginated list', index, ev.target);
-    console.log(this.state.toDoDetails.paginationBatch);
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          selectedPaginationIndex: index,
-        }),
-      };
-    });
-    let that = this;
-    setTimeout(function () {
-      console.log('inside render Items', index);
-      that.renderToDoItems(index);
-    }, 100);
+    this.handlerForPaginationButtonStates(index);
   }
   componentDidMount() {
     //console.log('Patta Kutti');
