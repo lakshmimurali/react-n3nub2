@@ -86,14 +86,21 @@ export default class AddToDo extends React.Component {
       }
       //console.log('value is', toDoContent);
       if (!this.state.toDoDetails.isEdit) {
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              todoList: this.state.toDoDetails.todoList.concat(toDoContent),
-              errorMessage: null,
-            }),
-          };
-        });
+        this.setState(
+          function (state) {
+            return {
+              toDoDetails: Object.assign({}, state.toDoDetails, {
+                todoList: this.state.toDoDetails.todoList.concat(toDoContent),
+                errorMessage: null,
+              }),
+            };
+          },
+          () => {
+            this.handlerForPaginationButtonStates();
+            this.renderPaginatedList();
+            this.clearToDo();
+          }
+        );
       } else {
         let tempToDoList = this.state.toDoDetails.todoList.slice();
         let updatedTempList = tempToDoList.splice(
@@ -101,20 +108,27 @@ export default class AddToDo extends React.Component {
           1,
           toDoContent
         );
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              todoList: tempToDoList,
-              isEdit: false,
-              editIndex: 0,
-              labelText: 'Add',
-              errorMessage: null,
-            }),
-          };
-        });
+        this.setState(
+          function (state) {
+            return {
+              toDoDetails: Object.assign({}, state.toDoDetails, {
+                todoList: tempToDoList,
+                isEdit: false,
+                editIndex: 0,
+                labelText: 'Add',
+                errorMessage: null,
+              }),
+            };
+          },
+          () => {
+            this.handlerForPaginationButtonStates();
+            this.renderPaginatedList();
+            this.clearToDo();
+          }
+        );
       }
-      this.handlerForPaginationButtonStates();
-      this.clearToDo();
+      //this.handlerForPaginationButtonStates();
+      //this.clearToDo();
     } else {
       return null;
     }
@@ -152,7 +166,6 @@ export default class AddToDo extends React.Component {
         };
       });
     }
-    this.renderPaginatedList(index);
   }
   renderPaginatedList(index) {
     // console.log('inside');
@@ -169,7 +182,13 @@ export default class AddToDo extends React.Component {
         startValue,
         startValue + 13
       );
-      console.log('paginatedList', paginatedList, startValue, startValue + 12);
+      console.log(
+        'paginatedList',
+        paginatedList,
+        startValue,
+        startValue + 12,
+        this.state.toDoDetails.todoList
+      );
 
       this.state.toDoDetails.todoList.forEach((toDoItem, ind) => {
         if (+ind >= startValue && +ind < startValue + 12) {
@@ -895,7 +914,7 @@ export default class AddToDo extends React.Component {
   }
   loadPaginatedToDoList(ev, index) {
     console.log('inside paginated list', index, ev.target);
-    this.handlerForPaginationButtonStates(index);
+    this.renderPaginatedList(index);
   }
   componentDidMount() {
     //console.log('Patta Kutti');
@@ -1116,7 +1135,7 @@ export default class AddToDo extends React.Component {
     let paginationHTML = [];
     if (
       this.state.toDoDetails.paginationReached &&
-      this.state.toDoDetails.paginationBatch >= 1
+      this.state.toDoDetails.paginationBatch > 1
     ) {
       for (
         let index = 1;
@@ -1257,7 +1276,7 @@ export default class AddToDo extends React.Component {
           </span>
         ) : null}
         {this.renderToDoItems()}
-        {this.state.toDoDetails.paginationBatch >= 1 ? (
+        {this.state.toDoDetails.paginationBatch > 1 ? (
           <div className="paginationContainer">{paginationHTML}</div>
         ) : null}
       </>
