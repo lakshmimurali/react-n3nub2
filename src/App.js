@@ -119,11 +119,12 @@ export default class AddToDo extends React.Component {
       return null;
     }
   }
-  handlerForPaginationButtonStates(index) {
+  handlerForPaginationButtonStates(index = 0) {
     let toDoList = this.state.toDoDetails.todoList;
     let paginationReached = this.state.toDoDetails.paginationReached;
     let paginationBatch = this.state.toDoDetails.paginationBatch;
-    if (toDoList.length > 11 && paginationReached === false) {
+
+    if (toDoList.length === 11 && paginationReached === false) {
       this.setState(function (state) {
         return {
           toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -166,18 +167,17 @@ export default class AddToDo extends React.Component {
         ((index || this.state.toDoDetails.paginationBatch) - 1) * 12;
       paginatedList = this.state.toDoDetails.todoList.slice(
         startValue,
-        startValue + 12
+        startValue + 13
       );
-      console.log(paginatedList, startValue);
+      console.log('paginatedList', paginatedList, startValue, startValue + 12);
 
-      this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
-        if (paginatedList.includes(index + '')) {
+      this.state.toDoDetails.todoList.forEach((toDoItem, ind) => {
+        if (+ind >= startValue && +ind < startValue + 12) {
           searchContent.push(toDoItem);
         } else {
           searchContent.push({});
         }
       });
-      console.log(searchContent);
       this.setState(function (state) {
         return {
           toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -275,7 +275,7 @@ export default class AddToDo extends React.Component {
       });
     }
     if (
-      this.state.toDoDetails.todoList.length < 13 &&
+      this.state.toDoDetails.todoList.length === 11 &&
       this.state.toDoDetails.paginationReached === true
     ) {
       this.setState(function (state) {
@@ -553,7 +553,7 @@ export default class AddToDo extends React.Component {
     });
   }
   renderToDoItems(index = 0) {
-    console.log('inside renderToDotems', index);
+    // console.log('inside renderToDotems', index);
     let toDoList =
       this.state.toDoDetails.isInSearchMode === true
         ? this.state.toDoDetails.searchList
