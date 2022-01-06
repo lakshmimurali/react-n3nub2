@@ -151,10 +151,7 @@ export default class AddToDo extends React.Component {
         };
       });
     }
-    let that = this;
-    setTimeout(function () {
-      that.renderPaginatedList(index), 100;
-    });
+    this.renderPaginatedList(index);
   }
   renderPaginatedList(index) {
     // console.log('inside');
@@ -968,13 +965,14 @@ export default class AddToDo extends React.Component {
     return IndexOfMatchedEntry;
   }
   clearSearch() {
-    this.setState(function (state) {
+    this.renderPaginatedList();
+    /* this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
-          isInSearchMode: false,
+          isInSearchMode: true,
         }),
       };
-    });
+    });*/
   }
   searchToDo() {
     let searchString = this.state.toDoDetails.newToDo;
