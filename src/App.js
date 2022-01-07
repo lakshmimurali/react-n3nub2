@@ -97,7 +97,6 @@ export default class AddToDo extends React.Component {
           },
           () => {
             this.handlerForPaginationButtonStates();
-            this.renderPaginatedList();
             this.clearToDo();
           }
         );
@@ -122,7 +121,6 @@ export default class AddToDo extends React.Component {
           },
           () => {
             this.handlerForPaginationButtonStates();
-            this.renderPaginatedList();
             this.clearToDo();
           }
         );
@@ -149,23 +147,36 @@ export default class AddToDo extends React.Component {
     }
     let pagiCount = Math.ceil(toDoList.length / 12);
     if (paginationBatch < pagiCount && paginationReached) {
-      this.setState(function (state) {
-        return {
-          toDoDetails: Object.assign({}, state.toDoDetails, {
-            paginationBatch: pagiCount,
-          }),
-        };
-      });
+      this.setState(
+        function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationBatch: pagiCount,
+              selectedPaginationIndex: index || pagiCount,
+            }),
+          };
+        },
+        () => {
+          this.renderPaginatedList(index);
+        }
+      );
     }
     if (paginationBatch > pagiCount && paginationReached) {
-      this.setState(function (state) {
-        return {
-          toDoDetails: Object.assign({}, state.toDoDetails, {
-            paginationBatch: pagiCount,
-          }),
-        };
-      });
+      this.setState(
+        function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationBatch: pagiCount,
+              selectedPaginationIndex: index || pagiCount,
+            }),
+          };
+        },
+        () => {
+          this.renderPaginatedList(index);
+        }
+      );
     }
+    this.renderPaginatedList(index);
   }
   renderPaginatedList(index) {
     // console.log('inside');
