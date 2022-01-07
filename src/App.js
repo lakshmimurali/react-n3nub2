@@ -22,7 +22,7 @@ export default class AddToDo extends React.Component {
         selectedFilterOption: 'Filter',
         paginationReached: false,
         paginationBatch: 1,
-        selectedPaginationIndex: 0,
+        selectedPaginationIndex: 1,
       },
     };
     this.textBoxField = React.createRef();
