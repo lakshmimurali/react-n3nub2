@@ -107,23 +107,32 @@ export default class AddToDo extends React.Component {
           1,
           toDoContent
         );
-        this.setState(function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              todoList: tempToDoList,
-              isEdit: false,
-              editIndex: 0,
-              labelText: 'Add',
-              errorMessage: null,
-            }),
-          };
-        });
+        this.setState(
+          function (state) {
+            return {
+              toDoDetails: Object.assign({}, state.toDoDetails, {
+                todoList: tempToDoList,
+                isEdit: false,
+                editIndex: 0,
+                labelText: 'Add',
+                errorMessage: null,
+              }),
+            };
+          },
+          () => {
+            this.handlerForPaginationButtonStates(
+              this.state.toDoDetails.paginationBatch,
+              'edit'
+            );
+            this.clearToDo();
+          }
+        );
       }
     } else {
       return null;
     }
   }
-  handlerForPaginationButtonStates(index = 0) {
+  handlerForPaginationButtonStates(index = 0, action) {
     let toDoList = this.state.toDoDetails.todoList;
     let paginationReached = this.state.toDoDetails.paginationReached;
     let paginationBatch = this.state.toDoDetails.paginationBatch;
@@ -138,6 +147,14 @@ export default class AddToDo extends React.Component {
       });
     }
     let pagiCount = Math.ceil(toDoList.length / 12);
+    let countOfLastSetOfToDo = toDoList.length % 12;
+    console.log('countOfLastSetOfoDo', countOfLastSetOfToDo);
+    if (
+      (action === 'remove' && countOfLastSetOfToDo > 0) ||
+      action === 'edit'
+    ) {
+      index = this.state.toDoDetails.selectedPaginationIndex;
+    }
     let showNextSetOfToDoList =
       paginationBatch < pagiCount && paginationReached;
     if (showNextSetOfToDoList) {
@@ -249,7 +266,10 @@ export default class AddToDo extends React.Component {
         };
       },
       () => {
-        this.handlerForPaginationButtonStates();
+        this.handlerForPaginationButtonStates(
+          this.state.toDoDetails.paginationBatch,
+          'remove'
+        );
       }
     );
 
