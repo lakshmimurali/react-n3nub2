@@ -146,13 +146,34 @@ export default class AddToDo extends React.Component {
       });
     }
     let pagiCount = Math.ceil(toDoList.length / 12);
-    if (paginationBatch < pagiCount && paginationReached) {
+    let showNextSetOfToDoList =
+      paginationBatch < pagiCount && paginationReached;
+    if (showNextSetOfToDoList) {
       this.setState(
         function (state) {
           return {
             toDoDetails: Object.assign({}, state.toDoDetails, {
               paginationBatch: pagiCount,
-              selectedPaginationIndex: index || pagiCount,
+            }),
+          };
+        },
+        () => {
+          console.log(
+            'inside paginated list case',
+            this.state.toDoDetails.paginationBatch
+          );
+          this.renderPaginatedList(index);
+        }
+      );
+    }
+    let showPreviousSetOfToDoList =
+      paginationBatch > pagiCount && paginationReached;
+    if (showPreviousSetOfToDoList) {
+      this.setState(
+        function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              paginationBatch: pagiCount,
             }),
           };
         },
@@ -161,22 +182,9 @@ export default class AddToDo extends React.Component {
         }
       );
     }
-    if (paginationBatch > pagiCount && paginationReached) {
-      this.setState(
-        function (state) {
-          return {
-            toDoDetails: Object.assign({}, state.toDoDetails, {
-              paginationBatch: pagiCount,
-              selectedPaginationIndex: index || pagiCount,
-            }),
-          };
-        },
-        () => {
-          this.renderPaginatedList(index);
-        }
-      );
+    if (!showNextSetOfToDoList && !showPreviousSetOfToDoList) {
+      this.renderPaginatedList(index);
     }
-    this.renderPaginatedList(index);
   }
   renderPaginatedList(index) {
     // console.log('inside');
