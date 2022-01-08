@@ -107,26 +107,18 @@ export default class AddToDo extends React.Component {
           1,
           toDoContent
         );
-        this.setState(
-          function (state) {
-            return {
-              toDoDetails: Object.assign({}, state.toDoDetails, {
-                todoList: tempToDoList,
-                isEdit: false,
-                editIndex: 0,
-                labelText: 'Add',
-                errorMessage: null,
-              }),
-            };
-          },
-          () => {
-            this.handlerForPaginationButtonStates();
-            this.clearToDo();
-          }
-        );
+        this.setState(function (state) {
+          return {
+            toDoDetails: Object.assign({}, state.toDoDetails, {
+              todoList: tempToDoList,
+              isEdit: false,
+              editIndex: 0,
+              labelText: 'Add',
+              errorMessage: null,
+            }),
+          };
+        });
       }
-      //this.handlerForPaginationButtonStates();
-      //this.clearToDo();
     } else {
       return null;
     }
@@ -248,13 +240,19 @@ export default class AddToDo extends React.Component {
     let updatedToDoList = toDoList
       .slice(0, index)
       .concat(toDoList.slice(index + 1));
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          todoList: updatedToDoList,
-        }),
-      };
-    });
+    this.setState(
+      function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            todoList: updatedToDoList,
+          }),
+        };
+      },
+      () => {
+        this.handlerForPaginationButtonStates();
+      }
+    );
+
     let priorityList = this.state.toDoDetails.selectedPriority;
     let priorityIndex = this.getIndexOfMatchedEntry(priorityList, index);
     if (priorityIndex != -1) {
@@ -312,6 +310,7 @@ export default class AddToDo extends React.Component {
         };
       });
     }
+
     if (
       this.state.toDoDetails.todoList.length === 11 &&
       this.state.toDoDetails.paginationReached === true
