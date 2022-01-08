@@ -148,7 +148,7 @@ export default class AddToDo extends React.Component {
     }
     let pagiCount = Math.ceil(toDoList.length / 12);
     let countOfLastSetOfToDo = toDoList.length % 12;
-    console.log('countOfLastSetOfoDo', countOfLastSetOfToDo);
+
     if (
       (action === 'remove' && countOfLastSetOfToDo > 0) ||
       action === 'edit'
@@ -167,10 +167,6 @@ export default class AddToDo extends React.Component {
           };
         },
         () => {
-          console.log(
-            'inside paginated list case',
-            this.state.toDoDetails.paginationBatch
-          );
           this.renderPaginatedList(index);
         }
       );
@@ -187,7 +183,7 @@ export default class AddToDo extends React.Component {
           };
         },
         () => {
-          this.renderPaginatedList(index);
+          this.renderPaginatedList(this.state.toDoDetails.paginationBatch);
         }
       );
     }
@@ -951,7 +947,6 @@ export default class AddToDo extends React.Component {
     });
   }
   loadPaginatedToDoList(ev, index) {
-    console.log('inside paginated list', index, ev.target);
     this.renderPaginatedList(index);
   }
   componentDidMount() {
@@ -1064,11 +1059,28 @@ export default class AddToDo extends React.Component {
       }
     });
     // console.log('searchContent', searchContent);
+    this.setState(
+      function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            searchList: searchContent,
+            isInSearchMode: true,
+          }),
+        };
+      },
+      () => {
+        this.showPaginationButton(
+          Math.ceil(this.state.toDoDetails.searchList.length / 12)
+        );
+      }
+    );
+  }
+  showPaginationButton(buttonCount) {
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
-          searchList: searchContent,
-          isInSearchMode: true,
+          paginationBatch: buttonCount,
+          selectedPaginationIndex: 1,
         }),
       };
     });
