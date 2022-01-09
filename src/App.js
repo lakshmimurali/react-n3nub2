@@ -8,6 +8,8 @@ export default class AddToDo extends React.Component {
       toDoDetails: {
         newToDo: '',
         todoList: [],
+        searchList: [],
+        paginatedList: [],
         isEdit: false,
         editIndex: 0,
         labelText: 'Add',
@@ -15,7 +17,6 @@ export default class AddToDo extends React.Component {
         selectedPriority: [],
         paperwork: [],
         todoETA: [],
-        searchList: [],
         status: [],
         checkedItems: new Map(),
         isInSearchMode: false,
@@ -40,7 +41,7 @@ export default class AddToDo extends React.Component {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
           newToDo: toDoContent,
-          // isInSearchMode: false,
+          isInSearchMode: false,
         }),
       };
     });
@@ -198,34 +199,49 @@ export default class AddToDo extends React.Component {
       this.state.toDoDetails.paginationBatch
     );
     let paginatedList = [];
-    let searchContent = [];
+
     if (this.state.toDoDetails.paginationReached) {
       let startValue =
         ((index || this.state.toDoDetails.paginationBatch) - 1) * 12;
-      paginatedList = this.state.toDoDetails.todoList.slice(
-        startValue,
-        startValue + 13
-      );
+
       console.log(
         'paginatedList',
-        paginatedList,
         startValue,
         startValue + 12,
         this.state.toDoDetails.todoList
       );
-
-      this.state.toDoDetails.todoList.forEach((toDoItem, ind) => {
+      let iterableLIst =
+        this.state.toDoDetails.isInSearchMode === true
+          ? this.state.toDoDetails.searchList
+          : this.state.toDoDetails.todoList;
+      iterableLIst.forEach((toDoItem, ind) => {
         if (+ind >= startValue && +ind < startValue + 12) {
-          searchContent.push(toDoItem);
+          paginatedList.push(toDoItem);
         } else {
-          searchContent.push({});
+          paginatedList.push({});
         }
       });
       this.setState(function (state) {
         return {
           toDoDetails: Object.assign({}, state.toDoDetails, {
-            searchList: searchContent,
-            isInSearchMode: true,
+            paginatedList: paginatedList,
+            isInSearchMode: this.state.toDoDetails.isInSearchMode,
+            selectedPaginationIndex:
+              index || this.state.toDoDetails.paginationBatch,
+          }),
+        };
+      });
+    } else {
+      let iterableLIst =
+        this.state.toDoDetails.isInSearchMode === true
+          ? this.state.toDoDetails.searchList
+          : this.state.toDoDetails.todoList;
+
+      this.setState(function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            paginatedList: iterableLIst,
+            isInSearchMode: this.state.toDoDetails.isInSearchMode,
             selectedPaginationIndex:
               index || this.state.toDoDetails.paginationBatch,
           }),
@@ -243,7 +259,7 @@ export default class AddToDo extends React.Component {
           newToDo: content,
           editIndex: index,
           labelText: 'Update',
-          // isInSearchMode: false,
+          isInSearchMode: false,
         }),
       };
     });
@@ -607,10 +623,8 @@ export default class AddToDo extends React.Component {
   }
   renderToDoItems(index = 0) {
     // console.log('inside renderToDotems', index);
-    let toDoList =
-      this.state.toDoDetails.isInSearchMode === true
-        ? this.state.toDoDetails.searchList
-        : this.state.toDoDetails.todoList;
+    let toDoList = this.state.toDoDetails.paginatedList;
+
     let isSearchMatchsCriteria = 0;
     // console.log(toDoList);
     if (toDoList.length === 0 && this.state.toDoDetails.isInSearchMode) {
@@ -1018,13 +1032,6 @@ export default class AddToDo extends React.Component {
   }
   clearSearch() {
     this.renderPaginatedList();
-    /* this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          isInSearchMode: true,
-        }),
-      };
-    });*/
   }
   searchToDo() {
     let searchString = this.state.toDoDetails.newToDo;
@@ -1080,15 +1087,20 @@ export default class AddToDo extends React.Component {
     if (buttonCount > 1) {
       paginationReached = true;
     }
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          paginationBatch: buttonCount,
-          selectedPaginationIndex: 1,
-          paginationReached: paginationReached,
-        }),
-      };
-    });
+    this.setState(
+      function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            paginationBatch: buttonCount,
+            selectedPaginationIndex: 1,
+            paginationReached: paginationReached,
+          }),
+        };
+      },
+      () => {
+        this.renderPaginatedList();
+      }
+    );
   }
   filterTasksBasedOnPriorityOrETA(event) {
     let input = event.target.value;
@@ -1102,6 +1114,7 @@ export default class AddToDo extends React.Component {
     });
     let matchedEntries;
     let searchContent = [];
+    let searchCount = 0;
     //let dateRegex = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
     if (isNaN(parseInt(input))) {
       // For ETA
@@ -1140,23 +1153,31 @@ export default class AddToDo extends React.Component {
       }
       //console.log(matchedEntries);
     }
+
     this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
       if (matchedEntries.includes(index)) {
         searchContent.push(toDoItem);
+        searchCount++;
       } else {
         searchContent.push({});
       }
     });
     // console.log('searchContent', searchContent);
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          searchList: searchContent,
-          isInSearchMode: true,
-        }),
-      };
-    });
+    this.setState(
+      function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            searchList: searchContent,
+            isInSearchMode: true,
+          }),
+        };
+      },
+      () => {
+        this.showPaginationButton(Math.ceil(searchCount / 12));
+      }
+    );
   }
+
   render() {
     let styleForSearchButton = {
       float: 'right',
