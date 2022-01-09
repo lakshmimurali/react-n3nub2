@@ -1050,10 +1050,12 @@ export default class AddToDo extends React.Component {
     let listOfIndexes = indexesOfToDoList.concat(contentIdsFromPaperWork);
     listOfIndexes.sort((a, b) => a - b);
     let searchContent = [];
+    let searchCount = 0;
     //console.log('listOfIndexes is', listOfIndexes);
     this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
       if (listOfIndexes.includes(index)) {
         searchContent.push(toDoItem);
+        searchCount++;
       } else {
         searchContent.push({});
       }
@@ -1069,18 +1071,21 @@ export default class AddToDo extends React.Component {
         };
       },
       () => {
-        this.showPaginationButton(
-          Math.ceil(this.state.toDoDetails.searchList.length / 12)
-        );
+        this.showPaginationButton(Math.ceil(searchCount / 12));
       }
     );
   }
   showPaginationButton(buttonCount) {
+    let paginationReached = false;
+    if (buttonCount > 1) {
+      paginationReached = true;
+    }
     this.setState(function (state) {
       return {
         toDoDetails: Object.assign({}, state.toDoDetails, {
           paginationBatch: buttonCount,
           selectedPaginationIndex: 1,
+          paginationReached: paginationReached,
         }),
       };
     });
