@@ -134,7 +134,10 @@ export default class AddToDo extends React.Component {
     }
   }
   handlerForPaginationButtonStates(index = 0, action) {
-    let toDoList = this.state.toDoDetails.todoList;
+    let toDoList =
+      this.state.toDoDetails.isInSearchMode === true
+        ? this.state.toDoDetails.searchList
+        : this.state.toDoDetails.todoList;
     let paginationReached = this.state.toDoDetails.paginationReached;
     let paginationBatch = this.state.toDoDetails.paginationBatch;
 
@@ -269,11 +272,21 @@ export default class AddToDo extends React.Component {
     let updatedToDoList = toDoList
       .slice(0, index)
       .concat(toDoList.slice(index + 1));
+    let inSearchMode = this.state.toDoDetails.isInSearchMode;
+    let updatedSearchList;
+    if (inSearchMode === true) {
+      let searchList = this.state.toDoDetails.searchList;
+      updatedSearchList = searchList
+        .slice(0, index)
+        .concat(searchList.slice(index + 1));
+    }
+    console.log('updatedSearchList is', updatedSearchList);
     this.setState(
       function (state) {
         return {
           toDoDetails: Object.assign({}, state.toDoDetails, {
             todoList: updatedToDoList,
+            searchList: updatedSearchList,
           }),
         };
       },
