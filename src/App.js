@@ -24,6 +24,7 @@ export default class AddToDo extends React.Component {
         paginationReached: false,
         paginationBatch: 1,
         selectedPaginationIndex: 1,
+        searchListPaginationStartIndices: [],
       },
     };
     this.textBoxField = React.createRef();
@@ -199,7 +200,8 @@ export default class AddToDo extends React.Component {
     // console.log('inside');
     console.log(
       this.state.toDoDetails.paginationReached,
-      this.state.toDoDetails.paginationBatch
+      this.state.toDoDetails.paginationBatch,
+      index
     );
     let paginatedList = [];
 
@@ -207,23 +209,29 @@ export default class AddToDo extends React.Component {
       let startValue =
         ((index || this.state.toDoDetails.paginationBatch) - 1) * 12;
 
-      console.log(
-        'paginatedList',
-        startValue,
-        startValue + 12,
-        this.state.toDoDetails.todoList
-      );
+      console.log('paginatedList', startValue, startValue + 12);
+
       let iterableLIst =
         this.state.toDoDetails.isInSearchMode === true
           ? this.state.toDoDetails.searchList
           : this.state.toDoDetails.todoList;
-      iterableLIst.forEach((toDoItem, ind) => {
-        if (+ind >= startValue && +ind < startValue + 12) {
-          paginatedList.push(toDoItem);
-        } else {
-          paginatedList.push({});
-        }
-      });
+      console.log('iterableLIst length', iterableLIst.length);
+      if (this.state.toDoDetails.isInSearchMode === false) {
+        iterableLIst.forEach((toDoItem, ind) => {
+          console.log('toDoItem', toDoItem, 'index', ind);
+          if (+ind >= startValue && +ind < startValue + 12) {
+            paginatedList.push(toDoItem);
+          } else {
+            paginatedList.push({});
+          }
+        });
+      } else {
+        let startIndex = +index - 1;
+        let pagistartIndex =
+          this.state.toDoDetails.searchListPaginationStartIndices[+startIndex];
+
+        paginatedList = this.state.toDoDetails.searchList.slice(pagistartIndex);
+      }
       this.setState(function (state) {
         return {
           toDoDetails: Object.assign({}, state.toDoDetails, {
@@ -252,7 +260,9 @@ export default class AddToDo extends React.Component {
       });
     }
   }
-
+  insertAt(array, index, ...elementsArray) {
+    array.splice(index, 0, ...elementsArray);
+  }
   editToDo(index, content) {
     this.setFocusToTextBox();
     this.setState(function (state) {
@@ -1072,8 +1082,12 @@ export default class AddToDo extends React.Component {
     let searchContent = [];
     let searchCount = 0;
     //console.log('listOfIndexes is', listOfIndexes);
+    let paginateddataStartIndexes = [];
     this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
       if (listOfIndexes.includes(index)) {
+        if (searchCount === 0 || index % 12 === 0) {
+          paginateddataStartIndexes.push(index);
+        }
         searchContent.push(toDoItem);
         searchCount++;
       } else {
@@ -1087,6 +1101,7 @@ export default class AddToDo extends React.Component {
           toDoDetails: Object.assign({}, state.toDoDetails, {
             searchList: searchContent,
             isInSearchMode: true,
+            searchListPaginationStartIndices: paginateddataStartIndexes,
           }),
         };
       },
@@ -1166,15 +1181,20 @@ export default class AddToDo extends React.Component {
       }
       //console.log(matchedEntries);
     }
-
+    let paginateddataStartIndexes = [];
     this.state.toDoDetails.todoList.forEach((toDoItem, index) => {
       if (matchedEntries.includes(index)) {
+        if (searchCount === 0 || index % 12 === 0) {
+          paginateddataStartIndexes.push(index);
+        }
+
         searchContent.push(toDoItem);
         searchCount++;
       } else {
         searchContent.push({});
       }
     });
+    console.log('paginateddataStartIndexes', paginateddataStartIndexes);
     // console.log('searchContent', searchContent);
     this.setState(
       function (state) {
@@ -1182,6 +1202,7 @@ export default class AddToDo extends React.Component {
           toDoDetails: Object.assign({}, state.toDoDetails, {
             searchList: searchContent,
             isInSearchMode: true,
+            searchListPaginationStartIndices: paginateddataStartIndexes,
           }),
         };
       },
