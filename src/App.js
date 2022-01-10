@@ -226,11 +226,33 @@ export default class AddToDo extends React.Component {
           }
         });
       } else {
-        let startIndex = +index - 1;
-        let pagistartIndex =
-          this.state.toDoDetails.searchListPaginationStartIndices[+startIndex];
+        let startIndex = index - 1;
+        let endIndex;
+        let lengthOfsearchListPaginationStartIndices =
+          this.state.toDoDetails.searchListPaginationStartIndices.length;
+        if (index === lengthOfsearchListPaginationStartIndices) {
+          let endIndexDiff =
+            this.state.toDoDetails.searchList.length -
+            this.state.toDoDetails.searchListPaginationStartIndices[startIndex];
+          endIndex =
+            this.state.toDoDetails.searchListPaginationStartIndices[
+              startIndex
+            ] + endIndexDiff;
+        } else {
+          endIndex =
+            this.state.toDoDetails.searchListPaginationStartIndices[
+              startIndex
+            ] + 12;
+        }
 
-        paginatedList = this.state.toDoDetails.searchList.slice(pagistartIndex);
+        let pagistartIndex =
+          this.state.toDoDetails.searchListPaginationStartIndices[startIndex];
+
+        console.log('pagistartIndex', pagistartIndex, 'endIndex', endIndex);
+        paginatedList = this.state.toDoDetails.searchList.slice(
+          pagistartIndex,
+          endIndex
+        );
       }
       this.setState(function (state) {
         return {
