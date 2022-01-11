@@ -25,6 +25,7 @@ export default class AddToDo extends React.Component {
         paginationBatch: 1,
         selectedPaginationIndex: 1,
         searchListPaginationStartIndices: [],
+        fromBrowserStore: false,
       },
     };
     this.textBoxField = React.createRef();
@@ -134,7 +135,37 @@ export default class AddToDo extends React.Component {
       return null;
     }
   }
+  storeDataInBrowserStore(entity, data) {
+    if (localStorage.getItem('browserStoretoDoList') === null) {
+      console.log(
+        'inside browser store',
+        localStorage.getItem('browserStoretoDoList')
+      );
+      localStorage.setItem(
+        'browserStoretoDoList',
+        JSON.stringify({
+          todoList: [],
+          eta: [],
+          paperwork: [],
+          status: [],
+          priority: [],
+        })
+      );
+    }
+    let dataObJfromLocalStorage = JSON.parse(
+      localStorage.getItem('browserStoretoDoList')
+    );
+    dataObJfromLocalStorage[entity] = data;
+    localStorage.setItem(
+      'browserStoretoDoList',
+      JSON.stringify(dataObJfromLocalStorage)
+    );
+  }
   handlerForPaginationButtonStates(index = 0, action) {
+    // localStorage.setItem('')
+    if (this.state.toDoDetails.isInSearchMode === false) {
+      this.storeDataInBrowserStore('todoList', this.state.toDoDetails.todoList);
+    }
     let toDoList =
       this.state.toDoDetails.isInSearchMode === true
         ? this.state.toDoDetails.searchList
@@ -430,13 +461,21 @@ export default class AddToDo extends React.Component {
         }
       });
     }
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          selectedPriority: priorityList,
-        }),
-      };
-    });
+    this.setState(
+      function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            selectedPriority: priorityList,
+          }),
+        };
+      },
+      () => {
+        this.storeDataInBrowserStore(
+          'priority',
+          this.state.toDoDetails.selectedPriority
+        );
+      }
+    );
   }
   handleStatusChange(evt, id) {
     const item = evt.target.name;
@@ -507,13 +546,18 @@ export default class AddToDo extends React.Component {
         }
       });
     }
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          status: statusList,
-        }),
-      };
-    });
+    this.setState(
+      function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            status: statusList,
+          }),
+        };
+      },
+      () => {
+        this.storeDataInBrowserStore('status', this.state.toDoDetails.status);
+      }
+    );
   }
   updatePaperWorkForToDo(value = '', id, textareastate) {
     let paperWorkList = this.state.toDoDetails.paperwork.slice();
@@ -535,13 +579,21 @@ export default class AddToDo extends React.Component {
       });
     }
     // console.log(paperWorkList);
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          paperwork: paperWorkList,
-        }),
-      };
-    });
+    this.setState(
+      function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            paperwork: paperWorkList,
+          }),
+        };
+      },
+      () => {
+        this.storeDataInBrowserStore(
+          'paperwork',
+          this.state.toDoDetails.paperwork
+        );
+      }
+    );
   }
   renderTextAreaToAddPaperWork(obj, id, textareastate) {
     let paperWorkValue;
@@ -622,13 +674,18 @@ export default class AddToDo extends React.Component {
       });
     }
     // console.log(etaList);
-    this.setState(function (state) {
-      return {
-        toDoDetails: Object.assign({}, state.toDoDetails, {
-          todoETA: etaList,
-        }),
-      };
-    });
+    this.setState(
+      function (state) {
+        return {
+          toDoDetails: Object.assign({}, state.toDoDetails, {
+            todoETA: etaList,
+          }),
+        };
+      },
+      () => {
+        this.storeDataInBrowserStore('eta', this.state.toDoDetails.todoETA);
+      }
+    );
   }
   setFocusToTextArea(event) {
     //console.log(event);
@@ -668,16 +725,25 @@ export default class AddToDo extends React.Component {
   }
   renderToDoItems(index = 0) {
     // console.log('inside renderToDotems', index);
-    let toDoList = this.state.toDoDetails.paginatedList;
-
+    let toDoList;
+    if (this.state.toDoDetails.fromBrowserStore) {
+      toDoList = this.state.toDoDetails.todoList;
+    } else {
+      toDoList = this.state.toDoDetails.paginatedList;
+    }
+    console.log(
+      'fromBrowserStore',
+      this.state.toDoDetails.fromBrowserStore,
+      toDoList
+    );
     let isSearchMatchsCriteria = 0;
-    // console.log(toDoList);
+    console.log(toDoList);
     if (toDoList.length === 0 && this.state.toDoDetails.isInSearchMode) {
       return <p> Data Not Found </p>;
     }
 
     return toDoList.map((value, index) => {
-      // console.log('inside>>>>>>>>>>>>>>>');
+      console.log('inside>>>>>>>>>>>>>>>', value, index);
       if (Object.keys(value).length === 0 && value.constructor === Object) {
         isSearchMatchsCriteria++;
         if (isSearchMatchsCriteria === toDoList.length) {
@@ -1012,7 +1078,29 @@ export default class AddToDo extends React.Component {
     //console.log('Patta Kutti');
     //this.setFocusToTextBox();
     document.title = 'To Do App';
+
+    console.log(localStorage.getItem('browserStoretoDoList'));
+    if (localStorage.getItem('browserStoretoDoList') != null) {
+      let dataFromBrowserStore = JSON.parse(
+        localStorage.getItem('browserStoretoDoList')
+      );
+      console.log('dataFromBrowserStore', dataFromBrowserStore);
+      this.setState(function (prevState) {
+        // console.log(prevState.toDoDetails.checkedItems);
+        return {
+          toDoDetails: Object.assign({}, prevState.toDoDetails, {
+            todoList: dataFromBrowserStore.todoList,
+            selectedPriority: dataFromBrowserStore.priority,
+            todoETA: dataFromBrowserStore.eta,
+            status: dataFromBrowserStore.status,
+            paperwork: dataFromBrowserStore.paperwork,
+            fromBrowserStore: true,
+          }),
+        };
+      });
+    }
   }
+
   hideErrorMessage(event) {
     this.setState(function (state) {
       return {
