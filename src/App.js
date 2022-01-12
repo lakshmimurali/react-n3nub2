@@ -1,4 +1,5 @@
 import React from 'react';
+import LogoutButton from './Logout.js';
 import './style.css';
 
 export default class AddToDo extends React.Component {
@@ -1453,6 +1454,7 @@ export default class AddToDo extends React.Component {
             </button>
           </div>
         ) : null}
+        <LogoutButton />
         <input
           type="text"
           name="gettodo"
