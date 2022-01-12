@@ -5,15 +5,15 @@ const LoginButton = () => {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
   let styleForLoginButton = {
     position: 'absolute',
-    top: '200px',
-    left: '600px',
-    width: '100px',
+    top: '400px',
+    left: '00px',
+    width: '200px',
     height: '100px',
     cursor: 'pointer',
   };
   return (
     !isAuthenticated && (
-      <button style={styleForLginButton} onClick={() => loginWithRedirect()}>
+      <button style={styleForLoginButton} onClick={() => loginWithRedirect()}>
         Please Login to Access your task List
       </button>
     )
