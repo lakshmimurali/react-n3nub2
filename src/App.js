@@ -610,6 +610,28 @@ export default class AddToDo extends React.Component {
       textareastate
     );
   }
+  renderDetailsOfPaperWork(givenTodoItem) {
+    console.log('Need to load the content of paperWork');
+    let indexOfPaperWork;
+    let paperWorkContent = '';
+    this.state.toDoDetails.todoList.filter((toDoItem, index) => {
+      let itemExist = toDoItem.includes(givenTodoItem);
+      if (itemExist) {
+        indexOfPaperWork = index;
+      }
+      return itemExist;
+    });
+    this.state.toDoDetails.paperwork.filter((paperWorkObj) => {
+      let paperWorkId = paperWorkObj.itemId;
+      let toDoId = +paperWorkId.split('-')[0];
+      if (+toDoId === +indexOfPaperWork) {
+        paperWorkContent = paperWorkObj.value;
+        console.log('paperWorkContent', paperWorkContent);
+      }
+      return false;
+    });
+    return <p key={givenTodoItem}> {paperWorkContent} </p>;
+  }
   constructETAText(noOfDays) {
     return noOfDays === 0
       ? 'Today'
@@ -1221,6 +1243,7 @@ export default class AddToDo extends React.Component {
       }
     );
   }
+
   showPaginationButton(buttonCount) {
     let paginationReached = false;
     if (buttonCount > 1) {
@@ -1387,6 +1410,7 @@ export default class AddToDo extends React.Component {
               role="search"
               name="Search-Todo"
               onClick={this.searchToDo}
+              /*onClick={(evet) => this.renderDetailsOfPaperWork('UCL')}*/
               style={styleForSearchButton}
             >
               {' '}
@@ -1498,6 +1522,7 @@ export default class AddToDo extends React.Component {
           </span>
         ) : null}
         {this.renderToDoItems()}
+        {this.renderDetailsOfPaperWork('UCL')}
         {this.state.toDoDetails.paginationBatch > 1 ? (
           <div className="paginationContainer">{paginationHTML}</div>
         ) : null}
