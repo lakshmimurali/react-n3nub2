@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import LogoutButton from './Logout.js';
 import './style.css';
 
@@ -27,6 +28,8 @@ export default class AddToDo extends React.Component {
         selectedPaginationIndex: 1,
         searchListPaginationStartIndices: [],
         fromBrowserStore: false,
+        isDetailsPage:false,
+        toDotemToLoad:''
       },
     };
     this.textBoxField = React.createRef();
@@ -138,11 +141,7 @@ export default class AddToDo extends React.Component {
   }
   storeDataInBrowserStore(entity, data) {
     if (localStorage.getItem('browserStoretoDoList') === null) {
-      console.log(
-        'inside browser store',
-        localStorage.getItem('browserStoretoDoList')
-      );
-      localStorage.setItem(
+            localStorage.setItem(
         'browserStoretoDoList',
         JSON.stringify({
           todoList: [],
@@ -344,7 +343,7 @@ export default class AddToDo extends React.Component {
         .slice(0, index)
         .concat(searchList.slice(index + 1));
     }
-    console.log('updatedSearchList is', updatedSearchList);
+   // console.log('updatedSearchList is', updatedSearchList);
     this.setState(
       function (state) {
         return {
@@ -611,7 +610,7 @@ export default class AddToDo extends React.Component {
     );
   }
   renderDetailsOfPaperWork(givenTodoItem) {
-    console.log('Need to load the content of paperWork');
+    //console.log('Need to load the content of paperWork');
     let indexOfPaperWork;
     let paperWorkContent = '';
     this.state.toDoDetails.todoList.filter((toDoItem, index) => {
@@ -626,7 +625,7 @@ export default class AddToDo extends React.Component {
       let toDoId = +paperWorkId.split('-')[0];
       if (+toDoId === +indexOfPaperWork) {
         paperWorkContent = paperWorkObj.value;
-        console.log('paperWorkContent', paperWorkContent);
+       // console.log('paperWorkContent', paperWorkContent);
       }
       return false;
     });
@@ -738,7 +737,7 @@ export default class AddToDo extends React.Component {
       if (checkeBoxStatus === true) {
         newStatus = true;
       }
-      console.log('checkedStatus', checkeBoxStatus);
+     // console.log('checkedStatus', checkeBoxStatus);
       return {
         toDoDetails: Object.assign({}, prevState.toDoDetails, {
           checkedItems: prevState.toDoDetails.checkedItems.set(id, newStatus),
@@ -748,25 +747,31 @@ export default class AddToDo extends React.Component {
   }
   renderToDoItems(index = 0) {
     // console.log('inside renderToDotems', index);
+    if(this.state.toDoDetails.isDetailsPage === true)
+    {
+      console.log('inside>>>>>>>>>>>>>>>>>>asas');
+      return this.renderDetailsOfPaperWork(this.state.toDoDetails.toDotemToLoad);
+    }
+
     let toDoList;
     if (this.state.toDoDetails.fromBrowserStore) {
       toDoList = this.state.toDoDetails.todoList;
     } else {
       toDoList = this.state.toDoDetails.paginatedList;
     }
-    console.log(
+    /*console.log(
       'fromBrowserStore',
       this.state.toDoDetails.fromBrowserStore,
       toDoList
-    );
+    );*/
     let isSearchMatchsCriteria = 0;
-    console.log(toDoList);
+  //  console.log(toDoList);
     if (toDoList.length === 0 && this.state.toDoDetails.isInSearchMode) {
       return <p> Data Not Found </p>;
     }
 
     return toDoList.map((value, index) => {
-      console.log('inside>>>>>>>>>>>>>>>', value, index);
+     // console.log('inside>>>>>>>>>>>>>>>', value, index);
       if (Object.keys(value).length === 0 && value.constructor === Object) {
         isSearchMatchsCriteria++;
         if (isSearchMatchsCriteria === toDoList.length) {
@@ -1101,13 +1106,16 @@ export default class AddToDo extends React.Component {
     //console.log('Patta Kutti');
     //this.setFocusToTextBox();
     document.title = 'To Do App';
-
-    console.log(localStorage.getItem('browserStoretoDoList'));
+    const toToDoLabel = this.props.match.params.id;
+    let isDetailsPage = false;
+    if(typeof toToDoLabel !== 'undefined' )
+    {
+      isDetailsPage = true;
+    }
     if (localStorage.getItem('browserStoretoDoList') != null) {
       let dataFromBrowserStore = JSON.parse(
         localStorage.getItem('browserStoretoDoList')
       );
-      console.log('dataFromBrowserStore', dataFromBrowserStore);
       this.setState(function (prevState) {
         // console.log(prevState.toDoDetails.checkedItems);
         return {
@@ -1118,6 +1126,8 @@ export default class AddToDo extends React.Component {
             status: dataFromBrowserStore.status,
             paperwork: dataFromBrowserStore.paperwork,
             fromBrowserStore: true,
+            isDetailsPage:isDetailsPage,
+            toDotemToLoad:toToDoLabel
           }),
         };
       });
@@ -1328,7 +1338,7 @@ export default class AddToDo extends React.Component {
         searchContent.push({});
       }
     });
-    console.log('paginateddataStartIndexes', paginateddataStartIndexes);
+   // console.log('paginateddataStartIndexes', paginateddataStartIndexes);
     // console.log('searchContent', searchContent);
     this.setState(
       function (state) {
@@ -1522,7 +1532,6 @@ export default class AddToDo extends React.Component {
           </span>
         ) : null}
         {this.renderToDoItems()}
-        {this.renderDetailsOfPaperWork('UCL')}
         {this.state.toDoDetails.paginationBatch > 1 ? (
           <div className="paginationContainer">{paginationHTML}</div>
         ) : null}
@@ -1530,3 +1539,4 @@ export default class AddToDo extends React.Component {
     );
   }
 }
+export default withRouter(AddToDo);

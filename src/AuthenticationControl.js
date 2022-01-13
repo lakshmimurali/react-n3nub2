@@ -21,7 +21,7 @@ const AuthControlComponent = () => {
           <AddToDo />
         </Route>
         <Route path="/todo/detail/:id">
-          <DetailsPage />
+          <AddToDo />
         </Route>
       </Switch>
     );

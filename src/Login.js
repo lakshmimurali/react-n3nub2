@@ -6,7 +6,7 @@ const LoginButton = () => {
   let styleForLoginButton = {
     position: 'absolute',
     top: '400px',
-    left: '00px',
+    left: '600px',
     width: '200px',
     height: '100px',
     cursor: 'pointer',
