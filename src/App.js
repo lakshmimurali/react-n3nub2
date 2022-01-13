@@ -749,7 +749,6 @@ export default class AddToDo extends React.Component {
     // console.log('inside renderToDotems', index);
     if(this.state.toDoDetails.isDetailsPage === true)
     {
-      console.log('inside>>>>>>>>>>>>>>>>>>asas');
       return this.renderDetailsOfPaperWork(this.state.toDoDetails.toDotemToLoad);
     }
 
