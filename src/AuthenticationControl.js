@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter } from 'react-router-dom';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import LoginButton from './Login';
 
@@ -17,9 +17,7 @@ const AuthControlComponent = () => {
         <Route exact path="/">
           <AddToDo />
         </Route>
-        <Route path="/todo/list">
-          <AddToDo />
-        </Route>
+        <Route exact path="/todo/list" component={withRouter(AddToDo)}></Route>
         <Route path="/todo/detail/:id">
           <AddToDo />
         </Route>

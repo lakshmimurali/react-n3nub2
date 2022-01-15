@@ -1,5 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import LogoutButton from './Logout.js';
 import './style.css';
 
@@ -629,7 +630,7 @@ export default class AddToDo extends React.Component {
       }
       return false;
     });
-    return <p key={givenTodoItem}> {paperWorkContent} </p>;
+    return <div key={givenTodoItem+"div"}> <Link to="/todo/list">Back To List View</Link> <p style={{ whiteSpace: 'pre' }} key={givenTodoItem}> {paperWorkContent} </p></div>;
   }
   constructETAText(noOfDays) {
     return noOfDays === 0
