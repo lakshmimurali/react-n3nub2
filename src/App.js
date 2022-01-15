@@ -1090,6 +1090,7 @@ export default class AddToDo extends React.Component {
                 <span key={index + 'pwpdetails'} style={{ marginLeft: -10 }}>
                   Details: <br /> {paperWorkExist.value}
                 </span>
+                <span key={index+'more'}> <Link to={`/todo/detail/${value}`}>More...</Link> </span>
               </p>
             ) : null}
 

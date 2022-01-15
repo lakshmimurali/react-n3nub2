@@ -18,9 +18,7 @@ const AuthControlComponent = () => {
           <AddToDo />
         </Route>
         <Route exact path="/todo/list" component={withRouter(AddToDo)}></Route>
-        <Route path="/todo/detail/:id">
-          <AddToDo />
-        </Route>
+        <Route path="/todo/detail/:id" component={withRouter(AddToDo)}></Route>
       </Switch>
     );
   } else if (isAuthenticated === false) {
