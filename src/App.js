@@ -117,6 +117,7 @@ export default class AddToDo extends React.Component {
         );
         this.setState(
           function (state) {
+            
             return {
               toDoDetails: Object.assign({}, state.toDoDetails, {
                 todoList: tempToDoList,
@@ -434,6 +435,7 @@ export default class AddToDo extends React.Component {
     }
   }
   updatePriorityOfToDo(evnt, id, selectState) {
+    let startTime = performance.now();
     let value = evnt.target.value;
     if (value === 'none') {
       return false;
@@ -471,6 +473,13 @@ export default class AddToDo extends React.Component {
         };
       },
       () => {
+        let endTime = performance.now();
+        rg4js('trackEvent', {
+          type: 'customTiming',
+          name: 'Priority Update Time',
+          duration: (endTime - startTime)
+        });
+        console.log('duration is' , (endTime - startTime) );
         this.storeDataInBrowserStore(
           'priority',
           this.state.toDoDetails.selectedPriority
@@ -519,6 +528,8 @@ export default class AddToDo extends React.Component {
   }
   updateStatusOfToDo(evnt, id, actionState) {
     // console.log(id, actionState);
+    let startTime = performance.now();
+
     let value = evnt.target.value;
     if (value === 'none') {
       return false;
@@ -556,6 +567,13 @@ export default class AddToDo extends React.Component {
         };
       },
       () => {
+        let endTime = performance.now();
+        rg4js('trackEvent', {
+          type: 'customTiming',
+          name: 'Update Status',
+          duration: (endTime - startTime)
+        });
+        console.log('Log duration' ,endTime - startTime);
         this.storeDataInBrowserStore('status', this.state.toDoDetails.status);
       }
     );
