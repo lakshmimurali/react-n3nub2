@@ -474,11 +474,11 @@ export default class AddToDo extends React.Component {
       },
       () => {
         let endTime = performance.now();
-        rg4js('trackEvent', {
+        /*rg4js('trackEvent', {
           type: 'customTiming',
           name: 'Priority Update Time',
           duration: (endTime - startTime)
-        });
+        });*/
         console.log('duration is' , (endTime - startTime) );
         this.storeDataInBrowserStore(
           'priority',
@@ -528,6 +528,7 @@ export default class AddToDo extends React.Component {
   }
   updateStatusOfToDo(evnt, id, actionState) {
     // console.log(id, actionState);
+    performance.mark('update-status-start');
     let startTime = performance.now();
 
     let value = evnt.target.value;
@@ -568,12 +569,16 @@ export default class AddToDo extends React.Component {
       },
       () => {
         let endTime = performance.now();
-        rg4js('trackEvent', {
+        /*rg4js('trackEvent', {
           type: 'customTiming',
           name: 'Update Status',
           duration: (endTime - startTime)
         });
-        console.log('Log duration' ,endTime - startTime);
+        console.log('Log duration' ,endTime - startTime);*/
+        performance.mark('update-status-end');
+        performance.measure('UpdateStatusofTodo', 'update-status-start', 'update-status-end');
+
+
         this.storeDataInBrowserStore('status', this.state.toDoDetails.status);
       }
     );
@@ -1432,7 +1437,7 @@ export default class AddToDo extends React.Component {
     }
     return (
       <>
-        <h3> To Do App </h3>
+        <h3 elementtiming="featured-heading"> To Do App </h3>
         {this.state.toDoDetails.todoList.length > 5 ? (
           <div className="filterandsearchcontainer">
             <button
